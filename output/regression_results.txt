@@ -1,0 +1,33 @@
+                          PanelOLS Estimation Summary                           
+================================================================================
+Dep. Variable:       net_monthly_flow   R-squared:                        0.0697
+Estimator:                   PanelOLS   R-squared (Between):              0.4173
+No. Observations:                  57   R-squared (Within):               0.0697
+Date:                Tue, May 26 2026   R-squared (Overall):              0.0918
+Time:                        11:57:24   Log-likelihood                   -708.89
+Cov. Estimator:                Robust                                           
+                                        F-statistic:                      1.9489
+Entities:                           3   P-value                           0.1527
+Avg Obs:                       19.000   Distribution:                    F(2,52)
+Min Obs:                       15.000                                           
+Max Obs:                       24.000   F-statistic (robust):             1.5798
+                                        P-value                           0.2157
+Time periods:                      39   Distribution:                    F(2,52)
+Avg Obs:                       1.4615                                           
+Min Obs:                       1.0000                                           
+Max Obs:                       3.0000                                           
+                                                                                
+                                   Parameter Estimates                                    
+==========================================================================================
+                        Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------------------
+const                  -1.301e+06   7.77e+05    -1.6748     0.1000  -2.861e+06   2.579e+05
+log_new_project_spend     -4450.9     5135.0    -0.8668     0.3900  -1.475e+04      5853.2
+log_total_active_spend  7.926e+04  4.783e+04     1.6572     0.1035  -1.671e+04   1.752e+05
+==========================================================================================
+
+F-test for Poolability: 1.6048
+P-value: 0.2107
+Distribution: F(2,52)
+
+Included effects: Entity
