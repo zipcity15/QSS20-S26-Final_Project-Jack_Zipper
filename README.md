@@ -10,11 +10,11 @@ Independent variables: log of new project monthly spend (treatment variable) and
 Province fixed effects, excluded time fixed effects, and used robust standard errors 
 
 # Order to Run
-1. [00_IATI_Cleaning.ipynb]([url](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/00_IATI_Cleaning.ipynb))
+1. [00_IATI_Cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/00_IATI_Cleaning.ipynb)
    * Packages needed:
      * pandas as pd, geopandas
    * Data:
-     * [iati-activity-locations-in-democratic-republic-of-the-congo.csv]([url](https://drive.google.com/file/d/11Y_PXmlMZQ_6jZbFkXMOF-D0Hyt6PVXh/view?usp=drive_link))
+     * [iati-activity-locations-in-democratic-republic-of-the-congo.csv](https://drive.google.com/file/d/11Y_PXmlMZQ_6jZbFkXMOF-D0Hyt6PVXh/view?usp=drive_link)
         * Data set from the Humanitarian Data Exchange (HDX) that details the aid and
           development activities in the DRC, as tracked by the International Aid Transparency Ini-
           tiative. This data set contains information on each aid/development project given in a
@@ -23,7 +23,7 @@ Province fixed effects, excluded time fixed effects, and used robust standard er
           project in multiple currencies, though I just used USD (spend), the province the project took
           place in (location name), and the longitude and latitude of where the aid was deployed (lo-
           cation longitude and location latitude respectively).
-     * [cod_admin_boundaries.shp/cod_admin1.shp]([url](https://drive.google.com/file/d/1RTTVl2CXENtgTihjgz1mbI5FzHuVfYGA/view?usp=drive_link)) in [cod_admin_boundaries.shp/]([url](https://drive.google.com/drive/folders/144ZmuXDYvrKyIgvfni3bn3UiUugAkhgY?usp=drive_link))
+     * [cod_admin_boundaries.shp/cod_admin1.shp](https://drive.google.com/file/d/1RTTVl2CXENtgTihjgz1mbI5FzHuVfYGA/view?usp=drive_link) in [cod_admin_boundaries.shp/](https://drive.google.com/drive/folders/144ZmuXDYvrKyIgvfni3bn3UiUugAkhgY?usp=drive_link)
         * Administrative maps of the DRC, specifically from the Democratic Republic of the Congo -
           Subnational Administrative Boundaries dataset from HDX. These contained shape files of the adminis-
           trative borders of the DRC’s 26 provinces. Using the coordinates of each aid activity, put
@@ -36,17 +36,17 @@ Province fixed effects, excluded time fixed effects, and used robust standard er
        project may have multiple different coordinates associated with it, so there is additional logic
        to deal with this).
    * Output
-     * Outputs newly cleaned and standardized data as [iati-drc-cleaned.csv]([url](https://drive.google.com/file/d/1TZnA1IfYYDwzBSzfgx-7eOlnrBvtRA7Y/view?usp=drive_link))  
+     * Outputs newly cleaned and standardized data as [iati-drc-cleaned.csv](https://drive.google.com/file/d/1TZnA1IfYYDwzBSzfgx-7eOlnrBvtRA7Y/view?usp=drive_link)  
 
-2. [01_IDP_Cleaning.ipynb]([url](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/01_IDP_Cleaning.ipynb))
+2. [01_IDP_Cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/01_IDP_Cleaning.ipynb)
    * Packages needed:
      * pandas, os, re
    * Data:
-     * [ocha_monthly_departures/]([url](https://drive.google.com/drive/folders/1cu6adkTvPH5eOcgsbY5IcI4-9DV0ojym?usp=drive_link))
+     * [ocha_monthly_departures/](https://drive.google.com/drive/folders/1cu6adkTvPH5eOcgsbY5IcI4-9DV0ojym?usp=drive_link)
         * Directory of excel spreadsheets that include data on a monthly snapshot of all active IDP displacement sites in the DRC.
         * Important rows include id, a unique site identifier, movement_date, the date the of displacement, household number of households
           displaced at site, and person, the number of individuals displaced at that site.
-     * [ocha_monthly_returnees/]([url](https://drive.google.com/drive/folders/1AyrQVB5Rmv4aPHW9MhCKYaUGOf8ZI99g?usp=drive_link))
+     * [ocha_monthly_returnees/](https://drive.google.com/drive/folders/1AyrQVB5Rmv4aPHW9MhCKYaUGOf8ZI99g?usp=drive_link)
         * Same structure as the departures directory but tracking returnees instead of IDPs, where a returnee is one who has returned home
    * Workflow:
      * Defines the two folder paths, the list of eastern provinces we care about, a dictionary mapping French month names to
@@ -62,14 +62,14 @@ Province fixed effects, excluded time fixed effects, and used robust standard er
         * Agreggate to per province, per month
         * Merge displacements and returnees data and calculate net IDP flows 
    * Output
-     * Returns newly merged data with net monthly IDP flows for Ituri, Nord-kivu, and Sud-kivu provinces as [idp_dat_eastern_drc.csv]([url](https://drive.google.com/file/d/1Icg82SmehaQlIPJnlBBfYQGRKt6Bec6d/view?usp=drive_link))
+     * Returns newly merged data with net monthly IDP flows for Ituri, Nord-kivu, and Sud-kivu provinces as [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1Icg82SmehaQlIPJnlBBfYQGRKt6Bec6d/view?usp=drive_link)
 
-3. [02_Merging+Regression.ipynb]([url](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/02_Merging%2BRegression.ipynb))
+3. [02_Merging+Regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/02_Merging%2BRegression.ipynb)
    * Packages needed:
      * pandas, numpy, linearmodels, statsmodels
    * Data:
-     * [idp_dat_eastern_drc.csv]([url](https://drive.google.com/file/d/1Icg82SmehaQlIPJnlBBfYQGRKt6Bec6d/view?usp=drive_link))
-     * [iati-drc-cleaned.csv]([url](https://drive.google.com/file/d/1TZnA1IfYYDwzBSzfgx-7eOlnrBvtRA7Y/view?usp=drive_link))
+     * [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1Icg82SmehaQlIPJnlBBfYQGRKt6Bec6d/view?usp=drive_link)
+     * [iati-drc-cleaned.csv](https://drive.google.com/file/d/1TZnA1IfYYDwzBSzfgx-7eOlnrBvtRA7Y/view?usp=drive_link)
    * Workflow:
      * Load in data
      * Standardize province names (some discrepancies still existed)
@@ -83,7 +83,7 @@ Province fixed effects, excluded time fixed effects, and used robust standard er
        Independent variables: log of new project monthly spend (treatment variable) and log of total active monthly spend (control).
        Province fixed effects, excluded time fixed effects, and used robust standard errors 
    * Output
-     * Regression table that was saved as [regression_results.txt]([url](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/regression_results.txt))
+     * Regression table that was saved as [regression_results.txt](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/regression_results.txt)
 
 
 # Challenges
