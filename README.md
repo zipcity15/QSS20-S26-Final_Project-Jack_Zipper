@@ -176,7 +176,7 @@ Both aggregations are merged back onto the IDP panel via **left joins** on `['ad
 
 ---
 
-### 4. [03_aid_displacement_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/03_aid_displacement_regression.ipynb)
+### 4. [03_aid_displacement_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/03_aid%2Bdisplacement_regression.ipynb)
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`, `statsmodels`
 
