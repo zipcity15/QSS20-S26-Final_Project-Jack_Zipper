@@ -1,0 +1,11 @@
+============================================================
+ Summary: Effect of log(deaths) on log(aid spend)
+============================================================
+Lag                    β       SE    p-value    Sig   R²(within)
+------------------------------------------------------------
+  Lag 1 month    -0.3194   0.1294     0.0136     **      -0.0052
+  Lag 3 months   -0.2904   0.1224     0.0177     **      -0.0047
+  Lag 6 months   -0.2781   0.1123     0.0133     **      -0.0042
+
+*** p<0.01  ** p<0.05  * p<0.1
+All models include town FE, month FE, and town-clustered standard errors.
