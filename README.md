@@ -57,11 +57,11 @@ Raw IATI CSV + Admin shapefiles
   10_time_underserved_regression ──► underserved_trend.png / underserved_regression.png
 ```
 
-Shared helper functions (`fill_deaths`, `assign_admin_level`, and project-wide path constants) live in `utils.py` and are imported by the notebooks that need them.
+Shared helper functions (`fill_deaths`, `assign_admin_level`, and project-wide path constants) live in utils.py and are imported by the notebooks that need them.
 
 ---
 
-## `utils.py` — Shared Module
+## utils.py — Shared Module
 
 **Location:** [code/utils.py](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/utils.py)
 
@@ -70,7 +70,7 @@ All notebooks that need shared logic import from this file via:
 import sys; sys.path.insert(0, '/Users/jackzipper/QSS20/final_project/code')
 from utils import fill_deaths, assign_admin_level, SMALL_CONSTANT, EASTERN_PROVINCES
 ```
-Note that not all functions are put in `utils.py`. Most functions are defined at the top of each notebook. Only logic that is genuinely shared across multiple notebooks — `fill_deaths` (used by scripts 7 and 9) and `assign_admin_level` (used twice in script 1) — was moved to `utils.py` to avoid duplication. Notebook-specific functions remain defined at the top of the notebook where they are used.
+Note that not all functions are put in utils.py. Most functions are defined at the top of each notebook. Only logic that is genuinely shared across multiple notebooks — `fill_deaths` (used by scripts 7 and 9) and `assign_admin_level` (used twice in script 1) — was moved to utils.py to avoid duplication. Notebook-specific functions remain defined at the top of the notebook where they are used.
 
 **Constants:**
 | Name | Value | Purpose |
@@ -83,9 +83,9 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 
 **Functions:**
 
-- **`fill_deaths(series)`** — Death-fill imputation applied per-town on the `total_deaths` column. Carries forward the last observed non-zero death count for up to 5 consecutive zero months; substitutes `SMALL_CONSTANT = 0.5` after 6+ consecutive zeros or at the series start. Results stored in `deaths_filled` (raw `total_deaths` is not modified). Used by `07_aid+violence_scatter` and `09_choropleth_map`.
+- **`fill_deaths(series)`** — Death-fill imputation applied per-town on the `total_deaths` column. Carries forward the last observed non-zero death count for up to 5 consecutive zero months; substitutes `SMALL_CONSTANT = 0.5` after 6+ consecutive zeros or at the series start. Results stored in `deaths_filled` (raw `total_deaths` is not modified). Used by 07_aid+violence_scatter and 09_choropleth_map.
 
-- **`assign_admin_level(gdf_points, boundaries, name_col, max_distance_m=55_000)`** — Point-in-polygon spatial join with a nearest-neighbour fallback. Runs `gpd.sjoin(..., predicate='within')` first; unmatched points are passed to `gpd.sjoin_nearest` with a 55 km distance cap. Returns a Series of admin name strings (NaN where truly outside DRC). Used by `00_IATI_cleaning` for both Admin-1 and Admin-2 assignment.
+- **`assign_admin_level(gdf_points, boundaries, name_col, max_distance_m=55_000)`** — Point-in-polygon spatial join with a nearest-neighbour fallback. Runs `gpd.sjoin(..., predicate='within')` first; unmatched points are passed to `gpd.sjoin_nearest` with a 55 km distance cap. Returns a Series of admin name strings (NaN where truly outside DRC). Used by 00_IATI_cleaning for both Admin-1 and Admin-2 assignment.
 
 ---
 
@@ -93,7 +93,7 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 
 ### 1. [00_IATI_cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/00_IATI_cleaning.ipynb)
 
-**Packages:** `pandas`, `geopandas`, `utils.py`
+**Packages:** `pandas`, `geopandas`, utils.py
 
 **Input data:**
 - [iati-activity-locations-in-democratic-republic-of-the-congo.csv](https://drive.google.com/file/d/1lo-Pedx_OcgNwm4YNmWbhoMqWIOmNGpa/view?usp=drive_link) — IATI aid activity records for the DRC from the Humanitarian Data Exchange (HDX). Each row is one geocoded aid activity with fields including: `aid` (project identifier), `location_longitude` / `location_latitude` (point coordinates), `day_start` / `day_end` (project dates), `spend` (USD disbursement), and `description`.
@@ -102,7 +102,7 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 
 **Cleaning steps:**
 1. All geometries are reprojected to EPSG:32635 (meters-based) for accurate distance calculations.
-2. **Admin-1 assignment** — `assign_admin_level()` (from `utils.py`) runs a left spatial join (`predicate='within'`) to assign each aid point to a province. Points that fall outside all polygons (border edge cases) are caught by a nearest-neighbor fallback: `gpd.sjoin_nearest` with `max_distance=55,000` metres. Points still unmatched after both passes (i.e., genuinely outside DRC) are dropped.
+2. **Admin-1 assignment** — `assign_admin_level()` (from utils.py) runs a left spatial join (`predicate='within'`) to assign each aid point to a province. Points that fall outside all polygons (border edge cases) are caught by a nearest-neighbor fallback: `gpd.sjoin_nearest` with `max_distance=55,000` metres. Points still unmatched after both passes (i.e., genuinely outside DRC) are dropped.
 3. **Admin-2 assignment** — the same `assign_admin_level()` function is called a second time with the Admin-2 boundary layer. The Admin-2 name column is auto-detected from a candidate list to handle shapefile inconsistencies across environments.
 4. **Deduplication** — exact duplicate rows are dropped first. Then rows are deduplicated on the key columns `['aid', 'province_name', 'day_start', 'day_end', 'description', 'spend']` to handle cases where the same project appears at multiple coordinates within a province. This retains one row per unique project-province-period combination.
 
@@ -127,7 +127,7 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 4. **Column filtering** — only the 13 columns in `usecols` are loaded via `load_files()`; files missing `admin1_label` or `person` are skipped.
 5. **Temporal filter** — inside `build_province_panel()` → `filter_and_dedup()`: rows are retained only where `movement_date` falls within the same year and month as the file's snapshot month. This prevents events recorded late from being double-counted across snapshots.
 6. **Event deduplication** — rows are deduplicated on `id` alone, keeping the earliest snapshot appearance. Each physical displacement event should appear exactly once.
-7. **Province filter** — only `['Nord-kivu', 'Sud-kivu', 'Ituri']` are retained. Note: these spellings are lowercase-k, matching the OCHA source; `02_aid_displacement_merge.ipynb` maps these to the IATI capitalisation.
+7. **Province filter** — only `['Nord-kivu', 'Sud-kivu', 'Ituri']` are retained. Note: these spellings are lowercase-k, matching the OCHA source; 02_aid_displacement_merge.ipynb maps these to the IATI capitalisation.
 8. **Panel aggregation** — `build_province_panel()` groups events by `['admin1_label', 'snapshot_month']` and sums to produce `total_displaced` / `total_returnees` and unique site counts.
 9. **Panel merge** — the displacement and returnee panels are merged with an **outer join** on `['admin1_label', 'snapshot_month']` so that months with departures but no returnees (and vice versa) are retained; NaNs are filled with 0.
 
@@ -138,7 +138,7 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 
 **Outputs:** [departees_eastern_drc.csv](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [returnees_eastern_drc.csv](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link), [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link)
 
-**Note on saved CSVs:** `departees_eastern_drc.csv` and `returnees_eastern_drc.csv` contain the raw concatenated event-level rows for **all provinces** (before province filtering). The eastern-province filter is re-applied independently by `04_displacement_analysis.ipynb` when it reads these files directly.
+**Note on saved CSVs:** departees_eastern_drc.csv and returnees_eastern_drc.csv contain the raw concatenated event-level rows for **all provinces** (before province filtering). The eastern-province filter is re-applied independently by 04_displacement_analysis.ipynb when it reads these files directly.
 
 ---
 
@@ -147,8 +147,8 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 **Packages:** `pandas`, `numpy`
 
 **Input data:**
-- [`idp_dat_eastern_drc.csv`](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link) — output of script 2
-- [`iati-drc-cleaned.csv`](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
+- [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link) — output of script 2
+- [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
 
 **Cleaning / prep steps:**
 1. Province names in the IATI data are standardised to match OCHA capitalisation via exact string replacement: `{'Nord-Kivu':'Nord-kivu', 'Sud-Kivu':'Sud-kivu', 'Ituri':'Ituri'}` (applied in `NAME_MAP`). This is an **exact match** on province name strings; no fuzzy matching is used.
@@ -172,7 +172,7 @@ Both aggregations are merged back onto the IDP panel via **left joins** on `['ad
 - `log_new_project_spend` = `log1p(new_project_monthly_spend)`.
 - `log_total_active_spend` = `log1p(total_active_monthly_spend)`. `log1p` is used so that zero-spend months map to 0 rather than −∞.
 
-**Output:** [`aid_displacement_merged.csv`](https://drive.google.com/file/d/1Q1NMYft8mfj2y7zeKhPXQPAeyS-tiNdQ/view?usp=drive_link)
+**Output:** [aid_displacement_merged.csv](https://drive.google.com/file/d/1Q1NMYft8mfj2y7zeKhPXQPAeyS-tiNdQ/view?usp=drive_link)
 
 ---
 
@@ -180,7 +180,7 @@ Both aggregations are merged back onto the IDP panel via **left joins** on `['ad
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`, `statsmodels`
 
-**Input data:** [`aid_displacement_merged.csv`](https://drive.google.com/file/d/1Q1NMYft8mfj2y7zeKhPXQPAeyS-tiNdQ/view?usp=drive_link)
+**Input data:** [aid_displacement_merged.csv](https://drive.google.com/file/d/1Q1NMYft8mfj2y7zeKhPXQPAeyS-tiNdQ/view?usp=drive_link)
 
 **Model specification (fitted in `make_regression_table()`):**
 
@@ -191,7 +191,7 @@ net_monthly_flow_{it} = α_i + β₁·log_new_project_spend_{it} + β₂·log_to
 where *i* indexes province and *t* indexes snapshot month. `α_i` is a province fixed effect (`entity_effects=True`). Standard errors are heteroskedasticity-robust (`cov_type='robust'`). No time fixed effects are included (`time_effects=False`).
 
 **Variable definitions:**
-- `net_monthly_flow` (dependent) — persons displaced minus persons returned in province *i* in month *t* (constructed in `01_IDP_cleaning.ipynb`). Positive values indicate net outward displacement.
+- `net_monthly_flow` (dependent) — persons displaced minus persons returned in province *i* in month *t* (constructed in 01_IDP_cleaning.ipynb). Positive values indicate net outward displacement.
 - `log_new_project_spend` — log(1 + sum of monthly spend rates for projects that started in the prior 6 months), measuring the *flow* of new aid into a province.
 - `log_total_active_spend` — log(1 + sum of monthly spend rates for all currently active projects), measuring the *stock* of ongoing aid.
 
@@ -199,7 +199,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
-**Output:** [`aid_displacement_regression.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/aid_displacement_regression.png)
+**Output:** [aid_displacement_regression.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/aid_displacement_regression.png)
 
 ---
 
@@ -207,11 +207,11 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **Packages:** `pandas`, `numpy`, `matplotlib`
 
-**Input data:** [`departees_eastern_drc.csv`](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [`returnees_eastern_drc.csv`](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link) (outputs of script 2)
+**Input data:** [departees_eastern_drc.csv](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [returnees_eastern_drc.csv](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link) (outputs of script 2)
 
 **Cleaning steps (`load_and_clean()`):** Reloads the raw event-level data and re-applies cleaning: filters to movement dates within the snapshot month, deduplicates on event `id`, filters to eastern provinces, and translates French cause labels to English via exact string replacement in `CAUSE_TRANSLATIONS`. Three encoding variants of "Amélioration des conditions" are mapped to a single English label.
 
-**Outputs:** [`idp_net_flow_monthly.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/idp_net_flow_monthly.png), [`displaced_returnees_by_province.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displaced_returnees_by_province.png), [`displacement_causes_top10.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displacement_causes_top10.png), [`displacement_summary_stats.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displacement_summary_stats.png)
+**Outputs:** [idp_net_flow_monthly.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/idp_net_flow_monthly.png), [displaced_returnees_by_province.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displaced_returnees_by_province.png), [displacement_causes_top10.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displacement_causes_top10.png), [displacement_summary_stats.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displacement_summary_stats.png)
 
 ---
 
@@ -220,8 +220,8 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 **Packages:** `pandas`, `geopandas`, `shapely`
 
 **Input data:**
-- [`conflict_data_cod.csv`](https://drive.google.com/file/d/1pr2mdSuG7NL-_apsAIDJet5DZWsUetYh/view?usp=drive_link) — conflict event data for the DRC (ACLED/UCDP). Each row is one event with fields including `id`, `latitude`, `longitude`, `year`, `date_start`, and `best` (best estimate of fatalities).
-- [`cod_admin_boundaries.shp/cod_admin2.shp`](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link) — Admin-2 boundary polygons.
+- [conflict_data_cod.csv](https://drive.google.com/file/d/1pr2mdSuG7NL-_apsAIDJet5DZWsUetYh/view?usp=drive_link) — conflict event data for the DRC (ACLED/UCDP). Each row is one event with fields including `id`, `latitude`, `longitude`, `year`, `date_start`, and `best` (best estimate of fatalities).
+- [cod_admin_boundaries.shp/cod_admin2.shp](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link) — Admin-2 boundary polygons.
 
 **Cleaning steps:**
 1. Filter to 2021–2026.
@@ -229,13 +229,13 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 3. Build a GeoDataFrame from conflict point coordinates; align CRS to EPSG:4326 if needed.
 4. **Admin-2 assignment** — left point-in-polygon spatial join (`predicate='within'`) against Admin-2 polygons. Points outside all polygons are retained with `town_admin2 = NaN` (border edge cases); **no nearest-neighbor fallback is applied here**, unlike in script 1. The Admin-2 name column is auto-detected from a candidate list.
 
-**Key difference from script 1:** Conflict points that fall outside all Admin-2 polygons are kept in the data (with missing `town_admin2`) rather than snapped to the nearest polygon. They are effectively dropped when `06_conflict_aid_merge.ipynb` aggregates by `town_admin2`.
+**Key difference from script 1:** Conflict points that fall outside all Admin-2 polygons are kept in the data (with missing `town_admin2`) rather than snapped to the nearest polygon. They are effectively dropped when 06_conflict_aid_merge.ipynb aggregates by `town_admin2`.
 
 **Variable definitions:**
 - `town_admin2` — name of the Admin-2 territory containing the conflict event (exact spatial match).
 - `best` — best-estimate fatality count for the event (sourced directly from ACLED/UCDP; not modified here).
 
-**Output:** [`conflict_dat_cleaned.csv`](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link)
+**Output:** [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link)
 
 ---
 
@@ -244,8 +244,8 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 **Packages:** `pandas`, `numpy`
 
 **Input data:**
-- [`iati-drc-cleaned.csv`](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
-- [`conflict_dat_cleaned.csv`](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link) — output of script 6
+- [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
+- [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link) — output of script 6
 
 **Merge strategy — three-step exact match on `['admin2_name', 'year_month']`:**
 
@@ -265,7 +265,7 @@ where `total_project_days = (day_end − day_start).days`, clipped to a minimum 
 
 Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined onto the balanced grid; unmatched cells receive 0. An assertion confirms the row count equals the grid size.
 
-**Key note on name matching:** The join between conflict data and IATI data uses exact string matching on `admin2_name`. Both datasets were assigned Admin-2 names from the *same* shapefile (`cod_admin2.shp`) in their respective cleaning scripts, so name strings should align. No fuzzy matching is applied; any Admin-2 unit present in only one dataset still appears in the panel (with zeros for the absent source) because the union of both Admin-2 name sets defines the grid.
+**Key note on name matching:** The join between conflict data and IATI data uses exact string matching on `admin2_name`. Both datasets were assigned Admin-2 names from the *same* shapefile (cod_admin2.shp) in their respective cleaning scripts, so name strings should align. No fuzzy matching is applied; any Admin-2 unit present in only one dataset still appears in the panel (with zeros for the absent source) because the union of both Admin-2 name sets defines the grid.
 
 **Variable definitions:**
 - `violent_incidents` — number of conflict events recorded in admin2 unit *i* in month *t*.
@@ -273,19 +273,19 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 - `num_aid_projects` — count of distinct IATI project IDs with any fractional activity in admin2 unit *i* in month *t*.
 - `total_aid_spend` — sum of fractional USD spend allocated to admin2 unit *i* in month *t* based on project overlap.
 
-**Output:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link) (10,512 rows: 146 admin2 units × 72 months)
+**Output:** [violence_aid_merged.csv](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link) (10,512 rows: 146 admin2 units × 72 months)
 
 ---
 
 ### 8. [07_aid_violence_scatter.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/07_aid_violence_scatter.ipynb)
 
-**Packages:** `pandas`, `numpy`, `matplotlib`, `adjustText`, `utils.py`
+**Packages:** `pandas`, `numpy`, `matplotlib`, `adjustText`, utils.py
 
-**Input data:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link)
+**Input data:** [violence_aid_merged.csv](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link)
 
 **Processing steps:**
 
-1. **Death-fill imputation (`fill_deaths()` from `utils.py`):** For each town, zero-death months are imputed as follows: if the streak of consecutive zero-death months is fewer than 6, the last observed non-zero death count is carried forward; if the streak reaches 6 or more, or if no prior non-zero value exists, the small constant `0.5` is used. This prevents log(0) = −∞ in the efficiency metric while preserving the signal from persistent conflict. The raw `total_deaths` column is not modified; results are stored in `deaths_filled`.
+1. **Death-fill imputation (`fill_deaths()` from utils.py):** For each town, zero-death months are imputed as follows: if the streak of consecutive zero-death months is fewer than 6, the last observed non-zero death count is carried forward; if the streak reaches 6 or more, or if no prior non-zero value exists, the small constant `0.5` is used. This prevents log(0) = −∞ in the efficiency metric while preserving the signal from persistent conflict. The raw `total_deaths` column is not modified; results are stored in `deaths_filled`.
 
 2. **Town-level aggregation (`build_town_averages()`):** For each town, sum `total_aid_spend` and `deaths_filled` across all months, then divide by the number of months observed to get per-month averages (`avg_aid_pm`, `avg_deaths_pm`).
 
@@ -305,7 +305,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 - `log_deaths` = `log(max(avg_deaths_pm, 0.5))` — log of average monthly death-fill-imputed deaths per town.
 - `metric` = `log_aid − log_deaths` — log aid-to-death ratio; the town-level efficiency score.
 
-**Output:** [`scatter_conflict_aid.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/scatter_conflict_aid.png)
+**Output:** [scatter_conflict_aid.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/scatter_conflict_aid.png)
 
 ---
 
@@ -313,7 +313,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`
 
-**Input data:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link)
+**Input data:** [violence_aid_merged.csv](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link)
 
 **Processing steps:**
 
@@ -339,7 +339,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
-**Outputs:** [`violence_aid_regression.txt`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/violence_aid_regression.txt), [`violence_aid_regression.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/violence_aid_regression.png)
+**Outputs:** [violence_aid_regression.txt](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/violence_aid_regression.txt), [violence_aid_regression.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/violence_aid_regression.png)
    * I created a .txt file because previously it was allowing me to export as a .png and I had to manually convert. The .txt file is an
      artifact of this and is the exact same thing as the .png version.  
 
@@ -347,13 +347,13 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 ### 10. [09_choropleth_map.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/09_choropleth_map.ipynb)
 
-**Packages:** `pandas`, `geopandas`, `numpy`, `matplotlib`, `utils.py`
+**Packages:** `pandas`, `geopandas`, `numpy`, `matplotlib`, utils.py
 
-**Input data:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link), [`cod_admin_boundaries.shp/cod_admin2.shp`](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link), [`cod_admin_boundaries.shp/cod_admin1.shp`](https://drive.google.com/file/d/1W3aOJXuyvs_mM93G-dXae_p3jZ32Ad1Z/view?usp=drive_link)
+**Input data:** [violence_aid_merged.csv](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link), [cod_admin_boundaries.shp/cod_admin2.shp](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link), [cod_admin_boundaries.shp/cod_admin1.shp](https://drive.google.com/file/d/1W3aOJXuyvs_mM93G-dXae_p3jZ32Ad1Z/view?usp=drive_link)
 
 **Processing steps:**
 
-1. **Death-fill imputation** — `fill_deaths()` imported from `utils.py` (same function as script 7; shared via utils to ensure identical behavior).
+1. **Death-fill imputation** — `fill_deaths()` imported from utils.py (same function as script 7; shared via utils to ensure identical behavior).
 
 2. **Quarterly aggregation:** Monthly panel rows are grouped by `['admin2_name', 'quarter']` (calendar quarter), summing `total_aid_spend` and `deaths_filled`.
 
@@ -366,13 +366,13 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 5. **Color scale:** A 9-bin quantile-based `BoundaryNorm` is applied so each color band covers an equal share of the metric distribution. Dark crimson = low log($/death) = underserved; light yellow = high log($/death) = overserved.
 
-**Intermediate output saved for downstream use:** [`drc_quarterly_metric.csv`](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
+**Intermediate output saved for downstream use:** [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
 
 **Outputs:**
-- [`drc_quarterly_metric.csv`](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — quarterly efficiency metric, read by script 11.
-- [`drc_choropleth_start.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_start.png) — static choropleth for the **first quarter of the analysis** (2021 Q1), providing a baseline snapshot of aid efficiency across DRC territories.
-- [`drc_choropleth_end.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_end.png) — static choropleth for the **last quarter of the analysis** (2026 Q4), showing how the distribution of aid efficiency has shifted over the study period.
-- [`drc_choropleth.gif`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth.gif) — animated choropleth cycling through all 24 quarters (2021 Q1 – 2026 Q4) at 2 fps. Both static images use the same color scale as the GIF so they are directly comparable.
+- [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — quarterly efficiency metric, read by script 11.
+- [drc_choropleth_start.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_start.png) — static choropleth for the **first quarter of the analysis** (2021 Q1), providing a baseline snapshot of aid efficiency across DRC territories.
+- [drc_choropleth_end.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_end.png) — static choropleth for the **last quarter of the analysis** (2026 Q4), showing how the distribution of aid efficiency has shifted over the study period.
+- [drc_choropleth.gif](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth.gif) — animated choropleth cycling through all 24 quarters (2021 Q1 – 2026 Q4) at 2 fps. Both static images use the same color scale as the GIF so they are directly comparable.
 
 ---
 
@@ -380,7 +380,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `scipy`, `statsmodels`
 
-**Input data:** [`drc_quarterly_metric.csv`](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — output of script 10
+**Input data:** [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — output of script 10
 
 **Processing steps:**
 
@@ -400,7 +400,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 5. **Structural break analysis:** The series is split at quarter index `t = 16` (2025 Q1), corresponding to the Trump inauguration and USAID funding freeze. Separate OLS trend models are fit on the pre-break (`t < 16`) and post-break (`t ≥ 16`) subsamples using `trend_line()` / `eval_trend()` helpers. Trend lines are evaluated at continuous date ranges — spanning from the left edge of the first bar to the right edge of the last bar in each segment — and meet exactly at the break date for visual continuity.
 
 **Variable definitions:**
-- `metric` — quarterly log(aid/death) efficiency score for each territory-quarter, carried over from `09_choropleth_map.ipynb`.
+- `metric` — quarterly log(aid/death) efficiency score for each territory-quarter, carried over from 09_choropleth_map.ipynb.
 - `underserved` — binary indicator: 1 if `metric ≤ global 25th percentile`, 0 otherwise.
 - `n_underserved` — count of underserved territory-quarters per quarter.
 - `pct_underserved` — share of all territories classified as underserved in a given quarter.
@@ -410,4 +410,4 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
-**Outputs:** [`underserved_trend.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/underserved_trend.png), [`underserved_regression.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/underserved_regression.png)
+**Outputs:** [underserved_trend.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/underserved_trend.png), [underserved_regression.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/underserved_regression.png)
