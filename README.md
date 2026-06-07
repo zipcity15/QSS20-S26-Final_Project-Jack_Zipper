@@ -61,6 +61,34 @@ Shared helper functions (`fill_deaths`, `assign_admin_level`, and project-wide p
 
 ---
 
+## `utils.py` — Shared Module
+
+**Location:** `code/utils.py`
+
+All notebooks that need shared logic import from this file via:
+```python
+import sys; sys.path.insert(0, '/Users/jackzipper/QSS20/final_project/code')
+from utils import fill_deaths, assign_admin_level, SMALL_CONSTANT, EASTERN_PROVINCES
+```
+Note that not all functions are put in `utils.py`. Most functions are defined at the top of each notebook. Only logic that is genuinely shared across multiple notebooks — `fill_deaths` (used by scripts 7 and 9) and `assign_admin_level` (used twice in script 1) — was moved to `utils.py` to avoid duplication. Notebook-specific functions remain defined at the top of the notebook where they are used.
+
+**Constants:**
+| Name | Value | Purpose |
+|------|-------|---------|
+| `SMALL_CONSTANT` | `0.5` | Floor substituted for zero-death months after 6+ consecutive zeros (prevents `log(0)`). |
+| `EASTERN_PROVINCES` | `['Nord-kivu', 'Sud-kivu', 'Ituri']` | Canonical province list used to filter OCHA data. Lowercase-k matches OCHA source spellings. |
+| `PROJECT_ROOT` | `Path('.../final_project')` | Root path for the project. |
+| `DATA_DIR` | `PROJECT_ROOT / 'final_project_data'` | Input data directory. |
+| `OUT_DIR` | `PROJECT_ROOT / 'output'` | Output directory for figures and CSVs. |
+
+**Functions:**
+
+- **`fill_deaths(series)`** — Death-fill imputation applied per-town on the `total_deaths` column. Carries forward the last observed non-zero death count for up to 5 consecutive zero months; substitutes `SMALL_CONSTANT = 0.5` after 6+ consecutive zeros or at the series start. Results stored in `deaths_filled` (raw `total_deaths` is not modified). Used by `07_aid+violence_scatter` and `09_choropleth_map`.
+
+- **`assign_admin_level(gdf_points, boundaries, name_col, max_distance_m=55_000)`** — Point-in-polygon spatial join with a nearest-neighbour fallback. Runs `gpd.sjoin(..., predicate='within')` first; unmatched points are passed to `gpd.sjoin_nearest` with a 55 km distance cap. Returns a Series of admin name strings (NaN where truly outside DRC). Used by `00_IATI_cleaning` for both Admin-1 and Admin-2 assignment.
+
+---
+
 ## Order to Run
 
 ### 1. [00_IATI_cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/00_IATI_cleaning.ipynb)
