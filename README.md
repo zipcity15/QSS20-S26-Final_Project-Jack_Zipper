@@ -1,7 +1,7 @@
 # Aid and Displacement in the Eastern DRC: How aid impacts IDP flows
 ### Jack Zipper's Final Project for QSS 20
 
-[Google Drive link for data here](https://drive.google.com/drive/folders/1uCD0Pz8TyrORPHGUJoKdhrBjs3u54un1)
+[Google Drive link for data here]()
 
 ---
 
@@ -51,7 +51,7 @@ Raw IATI CSV + Admin shapefiles
         ▼
   07_aid_violence_scatter ──► scatter_conflict_aid.png
   08_aid_violence_regression ──► violence_aid_regression.png / .txt
-  09_choropleth_map ──► drc_choropleth.png / .gif / drc_quarterly_metric.csv
+  09_choropleth_map ──► drc_choropleth_start.png / drc_choropleth_end.png / .gif / drc_quarterly_metric.csv
         │ drc_quarterly_metric.csv
         ▼
   10_time_underserved_regression ──► underserved_trend.png / underserved_regression.png
@@ -338,7 +338,11 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **Intermediate output saved for downstream use:** `drc_quarterly_metric.csv` — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
 
-**Outputs:** `drc_quarterly_metric.csv`, `drc_choropleth.png` (most recent quarter), `drc_choropleth.gif` (all 24 quarters animated)
+**Outputs:**
+- `drc_quarterly_metric.csv` — quarterly efficiency metric, read by script 11.
+- `drc_choropleth_start.png` — static choropleth for the **first quarter of the analysis** (2021 Q1), providing a baseline snapshot of aid efficiency across DRC territories.
+- `drc_choropleth_end.png` — static choropleth for the **last quarter of the analysis** (2026 Q4), showing how the distribution of aid efficiency has shifted over the study period.
+- `drc_choropleth.gif` — animated choropleth cycling through all 24 quarters (2021 Q1 – 2026 Q4) at 2 fps. Both static images use the same color scale as the GIF so they are directly comparable.
 
 ---
 
