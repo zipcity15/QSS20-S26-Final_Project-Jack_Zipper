@@ -1,4 +1,4 @@
-# Aid and Displacement in the Eastern DRC: How aid impacts IDP flows
+# Aid, Displacement, and Violence in the DRC: An analysis how aid impacts IDP flows in the Eastern DRC and how violence has impacted patterns of aid spending.
 ### Jack Zipper's Final Project for QSS 20
 
 [Google Drive link for data here]()
@@ -7,7 +7,7 @@
 
 ## Guiding Question
 
-In the eastern region of the Democratic Republic of the Congo, a region rocked by the resurgence of the M23 insurgency, how does the introduction of aid influence flows of internally displaced persons (IDPs) in the region? Nationally, how has violence impacted aid spending? To what extent does aid respond to violence at the local level in the DRC?
+In the eastern region of the Democratic Republic of the Congo, a region rocked by the resurgence of the M23 insurgency, how does the introduction of aid influence flows of internally displaced persons (IDPs) in the region? Nationally, how has violence impacted patterns of aid spending? To what extent does aid respond to violence at the local level in the DRC?
 
 ---
 
