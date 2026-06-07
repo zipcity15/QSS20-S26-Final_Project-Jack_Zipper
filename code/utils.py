@@ -2,7 +2,7 @@
 utils.py — shared helper functions for the DRC humanitarian aid project.
 
 Import in any notebook with:
-    import sys; sys.path.insert(0, '/Users/jackzipper/QSS20/final_project/code')
+    import sys; sys.path.insert(0, str(Path(__file__).resolve().parent))
     from utils import fill_deaths, assign_admin_level
 """
 
@@ -11,7 +11,8 @@ import geopandas as gpd
 from pathlib import Path
 
 # ── Project-wide paths ─────────────────────────────────────────────────────
-PROJECT_ROOT = Path('/Users/jackzipper/QSS20/final_project')
+# Derive root from this file's location (code/utils.py → project root is one level up)
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR     = PROJECT_ROOT / 'final_project_data'
 OUT_DIR      = PROJECT_ROOT / 'output'
 
@@ -26,7 +27,7 @@ def fill_deaths(series):
     """Carry-forward last known death count for up to 5 months of zeros;
     fall back to SMALL_CONSTANT after 6+ consecutive zero months or at series start.
 
-    Used in: 07_aid+violence_scatter, 09_choropleth_map.
+    Used in: 07_aid_violence_scatter, 09_choropleth_map.
     """
     s = series.astype(float).values.copy()
     last_nonzero, streak = None, 0
