@@ -70,7 +70,7 @@ All notebooks that need shared logic import from this file via:
 import sys; sys.path.insert(0, '/Users/jackzipper/QSS20/final_project/code')
 from utils import fill_deaths, assign_admin_level, SMALL_CONSTANT, EASTERN_PROVINCES
 ```
-Note that not all functions are put in utils.py. Most functions are defined at the top of each notebook. Only logic that is genuinely shared across multiple notebooks — `fill_deaths` (used by scripts 7 and 9) and `assign_admin_level` (used twice in script 1) — was moved to utils.py to avoid duplication. Notebook-specific functions remain defined at the top of the notebook where they are used.
+Note that not all functions are put in utils.py. Most functions are defined at the top of each notebook. Only logic that is genuinely shared across multiple notebooks — `fill_deaths` (used by scripts 07 and 09) and `assign_admin_level` (used twice in script 00) — was moved to utils.py to avoid duplication. Notebook-specific functions remain defined at the top of the notebook where they are used.
 
 **Constants:**
 | Name | Value | Purpose |
@@ -83,9 +83,9 @@ Note that not all functions are put in utils.py. Most functions are defined at t
 
 **Functions:**
 
-- **`fill_deaths(series)`** — Death-fill imputation applied per-town on the `total_deaths` column. Carries forward the last observed non-zero death count for up to 5 consecutive zero months; substitutes `SMALL_CONSTANT = 0.5` after 6+ consecutive zeros or at the series start. Results stored in `deaths_filled` (raw `total_deaths` is not modified). Used by 07_aid+violence_scatter and 09_choropleth_map.
+- **`fill_deaths(series)`** — Death-fill imputation applied per-town on the `total_deaths` column. Carries forward the last observed non-zero death count for up to 5 consecutive zero months; substitutes `SMALL_CONSTANT = 0.5` after 6+ consecutive zeros or at the series start. Results stored in `deaths_filled` (raw `total_deaths` is not modified). Used by scripts 07 and 09.
 
-- **`assign_admin_level(gdf_points, boundaries, name_col, max_distance_m=55_000)`** — Point-in-polygon spatial join with a nearest-neighbour fallback. Runs `gpd.sjoin(..., predicate='within')` first; unmatched points are passed to `gpd.sjoin_nearest` with a 55 km distance cap. Returns a Series of admin name strings (NaN where truly outside DRC). Used by 00_IATI_cleaning for both Admin-1 and Admin-2 assignment.
+- **`assign_admin_level(gdf_points, boundaries, name_col, max_distance_m=55_000)`** — Point-in-polygon spatial join with a nearest-neighbour fallback. Runs `gpd.sjoin(..., predicate='within')` first; unmatched points are passed to `gpd.sjoin_nearest` with a 55 km distance cap. Returns a Series of admin name strings (NaN where truly outside DRC). Used by script 00 for both Admin-1 and Admin-2 assignment.
 
 ---
 
@@ -147,8 +147,8 @@ Note that not all functions are put in utils.py. Most functions are defined at t
 **Packages:** `pandas`, `numpy`
 
 **Input data:**
-- [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link) — output of script 2
-- [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
+- [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link) — output of script 01
+- [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 00
 
 **Cleaning / prep steps:**
 1. Province names in the IATI data are standardised to match OCHA capitalisation via exact string replacement: `{'Nord-Kivu':'Nord-kivu', 'Sud-Kivu':'Sud-kivu', 'Ituri':'Ituri'}` (applied in `NAME_MAP`). This is an **exact match** on province name strings; no fuzzy matching is used.
@@ -195,7 +195,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 - `log_new_project_spend` — log(1 + sum of monthly spend rates for projects that started in the prior 6 months), measuring the *flow* of new aid into a province.
 - `log_total_active_spend` — log(1 + sum of monthly spend rates for all currently active projects), measuring the *stock* of ongoing aid.
 
-**Source of identification:** Identification relies on within-province variation over time (province fixed effects absorb all time-invariant provincial characteristics). The key assumption is that, conditional on province fixed effects, month-to-month variation in aid spending is not driven by contemporaneous shocks to displacement that are unobserved. This assumption is unlikely to hold perfectly — aid may be endogenously directed toward displacement crises — which motivates the lagged-violence analysis in script 8. This analysis should therefore be interpreted as descriptive/associational rather than causal.
+**Source of identification:** Identification relies on within-province variation over time (province fixed effects absorb all time-invariant provincial characteristics). The key assumption is that, conditional on province fixed effects, month-to-month variation in aid spending is not driven by contemporaneous shocks to displacement that are unobserved. This assumption is unlikely to hold perfectly — aid may be endogenously directed toward displacement crises — which motivates the lagged-violence analysis in script 08. This analysis should therefore be interpreted as descriptive/associational rather than causal.
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
@@ -207,7 +207,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **Packages:** `pandas`, `numpy`, `matplotlib`
 
-**Input data:** [departees_eastern_drc.csv](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [returnees_eastern_drc.csv](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link) (outputs of script 2)
+**Input data:** [departees_eastern_drc.csv](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [returnees_eastern_drc.csv](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link) (outputs of script 01)
 
 **Cleaning steps (`load_and_clean()`):** Reloads the raw event-level data and re-applies cleaning: filters to movement dates within the snapshot month, deduplicates on event `id`, filters to eastern provinces, and translates French cause labels to English via exact string replacement in `CAUSE_TRANSLATIONS`. Three encoding variants of "Amélioration des conditions" are mapped to a single English label.
 
@@ -244,8 +244,8 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 **Packages:** `pandas`, `numpy`
 
 **Input data:**
-- [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
-- [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link) — output of script 6
+- [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 00
+- [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link) — output of script 05
 
 **Merge strategy — three-step exact match on `['admin2_name', 'year_month']`:**
 
@@ -369,7 +369,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 **Intermediate output saved for downstream use:** [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
 
 **Outputs:**
-- [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — quarterly efficiency metric, read by script 11.
+- [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — quarterly efficiency metric, read by script 10.
 - [drc_choropleth_start.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_start.png) — static choropleth for the **first quarter of the analysis** (2021 Q1), providing a baseline snapshot of aid efficiency across DRC territories.
 - [drc_choropleth_end.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_end.png) — static choropleth for the **last quarter of the analysis** (2026 Q4), showing how the distribution of aid efficiency has shifted over the study period.
 - [drc_choropleth.gif](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth.gif) — animated choropleth cycling through all 24 quarters (2021 Q1 – 2026 Q4) at 2 fps. Both static images use the same color scale as the GIF so they are directly comparable.
@@ -380,7 +380,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `scipy`, `statsmodels`
 
-**Input data:** [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — output of script 10
+**Input data:** [drc_quarterly_metric.csv](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — output of script 09
 
 **Processing steps:**
 
