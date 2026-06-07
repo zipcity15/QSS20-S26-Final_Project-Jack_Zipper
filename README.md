@@ -1,96 +1,379 @@
-# Aid and Displacement in the Eastern DRC: How aid impacts IDP flows. 
-Jack Zipper's Final Project for QSS 20
+# Aid and Displacement in the Eastern DRC: How aid impacts IDP flows
+### Jack Zipper's Final Project for QSS 20
 
-Google drive link for data [here](https://drive.google.com/drive/folders/1uCD0Pz8TyrORPHGUJoKdhrBjs3u54un1?usp=drive_link)
+[Google Drive link for data here]()
 
-# Guiding Question:
-In the eastern region of the Democratic Republic of the Congo, a region rocked by the resurgence of the M23 insurgency, how does the introduction of aid influence flows of internally displaced persons (IDPs) in the region?
+---
 
-# Methods
-Ordinary least squares regression. Dependent variable: net monthly displacement flows per province per month. 
-Independent variables: log of new project monthly spend (treatment variable) and log of total active monthly spend (control).
-Province fixed effects, excluded time fixed effects, and used robust standard errors 
+## Guiding Question
 
-# Order to Run
-1. [00_IATI_Cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/00_IATI_Cleaning.ipynb)
-   * Packages needed:
-     * pandas as pd, geopandas
-   * Data:
-     * [iati-activity-locations-in-democratic-republic-of-the-congo.csv](https://drive.google.com/file/d/11Y_PXmlMZQ_6jZbFkXMOF-D0Hyt6PVXh/view?usp=drive_link)
-        * Data set from the Humanitarian Data Exchange (HDX) that details the aid and
-          development activities in the DRC, as tracked by the International Aid Transparency Ini-
-          tiative. This data set contains information on each aid/development project given in a
-          certain area. Among the most relevant things for my analysis, it gives the date the aid
-          intervention started (start day), how long it lasted in days (day length), the spend on the
-          project in multiple currencies, though I just used USD (spend), the province the project took
-          place in (location name), and the longitude and latitude of where the aid was deployed (lo-
-          cation longitude and location latitude respectively).
-     * [cod_admin_boundaries.shp/cod_admin1.shp](https://drive.google.com/file/d/1RTTVl2CXENtgTihjgz1mbI5FzHuVfYGA/view?usp=drive_link) in [cod_admin_boundaries.shp/](https://drive.google.com/drive/folders/144ZmuXDYvrKyIgvfni3bn3UiUugAkhgY?usp=drive_link)
-        * Administrative maps of the DRC, specifically from the Democratic Republic of the Congo -
-          Subnational Administrative Boundaries dataset from HDX. These contained shape files of the adminis-
-          trative borders of the DRC’s 26 provinces. Using the coordinates of each aid activity, put
-          the aid activity into a certain province if it fell within its borders.
-   * Workflow:
-     * Clean and standardize data. A part of this was to determine the location of each aid activity
-       which we did by looking at the longitude and latitude of each aid activity and then placing that
-       in a certain province based on the coordinates of the borders of province. Duplicate rows are
-       dropped, both in the form of exact duplicates and duplicates dropped on key columns (the same aid
-       project may have multiple different coordinates associated with it, so there is additional logic
-       to deal with this).
-   * Output
-     * Outputs newly cleaned and standardized data as [iati-drc-cleaned.csv](https://drive.google.com/file/d/1TZnA1IfYYDwzBSzfgx-7eOlnrBvtRA7Y/view?usp=drive_link)  
+In the eastern region of the Democratic Republic of the Congo, a region rocked by the resurgence of the M23 insurgency, how does the introduction of aid influence flows of internally displaced persons (IDPs) in the region? Nationally, how has violence impacted aid spending? To what extent does aid respond to violence at the local level in the DRC?
 
-2. [01_IDP_Cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/01_IDP_Cleaning.ipynb)
-   * Packages needed:
-     * pandas, os, re
-   * Data:
-     * [ocha_monthly_departures/](https://drive.google.com/drive/folders/1cu6adkTvPH5eOcgsbY5IcI4-9DV0ojym?usp=drive_link)
-        * Directory of excel spreadsheets that include data on a monthly snapshot of all active IDP displacement sites in the DRC.
-        * Important rows include id, a unique site identifier, movement_date, the date the of displacement, household number of households
-          displaced at site, and person, the number of individuals displaced at that site.
-     * [ocha_monthly_returnees/](https://drive.google.com/drive/folders/1AyrQVB5Rmv4aPHW9MhCKYaUGOf8ZI99g?usp=drive_link)
-        * Same structure as the departures directory but tracking returnees instead of IDPs, where a returnee is one who has returned home
-   * Workflow:
-     * Defines the two folder paths, the list of eastern provinces we care about, a dictionary mapping French month names to
-       numbers (since the filenames use French and are inconsistent), and the list of columns we want to load from each Excel file .
-     * Creates functions to facilitate loading in the series of monthly sheets:
-        * Extracts string of filename of each excel sheet in the directory so we can find the name of the month in French and
-          map the month and year to each excel sheet (extract_snapshot_month()).
-        * Take an opened sheet and find the tab in the sheet that contains the data we have (these excel sheets often contain multiple tabs,
-          and these other tabs are not relevant to our analysis).
-        * Loop through the two directories to load in sheet and, trigger print statements to show that a file did not load in if it did not
-          successfully load in. Then concatenates the rows in each loaded sheet to a new larger sheet.
-        * Drop duplicates and then filter for rows that include only new displacements
-        * Agreggate to per province, per month
-        * Merge displacements and returnees data and calculate net IDP flows 
-   * Output
-     * Returns newly merged data with net monthly IDP flows for Ituri, Nord-kivu, and Sud-kivu provinces as [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1Icg82SmehaQlIPJnlBBfYQGRKt6Bec6d/view?usp=drive_link)
+---
 
-3. [02_Merging+Regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/02_Merging%2BRegression.ipynb)
-   * Packages needed:
-     * pandas, numpy, linearmodels, statsmodels
-   * Data:
-     * [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1Icg82SmehaQlIPJnlBBfYQGRKt6Bec6d/view?usp=drive_link)
-     * [iati-drc-cleaned.csv](https://drive.google.com/file/d/1TZnA1IfYYDwzBSzfgx-7eOlnrBvtRA7Y/view?usp=drive_link)
-   * Workflow:
-     * Load in data
-     * Standardize province names (some discrepancies still existed)
-     * For IATI data, Filter IATI to eastern provinces and calculate the monthly spend rate for each aid project
-     * Loop through each province-month in IDP data to calculate the number of aid projects that started in the province in the 6 months
-       prior to that observation province and all aid projects that were actively running during that observation month
-       to capture the baseline level of aid already present in the province. Append this data to a new list called records
-     * Merge this new list with the IDP data and log transform the aid spend. Aid spending is highly right-skewed since most of the
-       aid dollars are concentrated in a few very large projects while most projects are small, necessitating a log transformation.
-     * Run ordinary least squares regression. Dependent variable: net monthly displacement flows per province per month.
-       Independent variables: log of new project monthly spend (treatment variable) and log of total active monthly spend (control).
-       Province fixed effects, excluded time fixed effects, and used robust standard errors 
-   * Output
-     * Regression table that was saved as [regression_results.txt](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/regression_results.txt)
+# Methodology
 
+## Pipeline Overview
 
-# Challenges
-Main challenge: Low statistical power. There are only 57 total rows across the 3 provinces over a little over five years. On average that's a 
-new data point every three months, which might not be granular enough.
-Other challenge: No statistical siginficance. Initial outputs show the relationship between aid and net IDP flows is not statistically
-significant 
+The eleven scripts run sequentially in the order listed. The diagram below shows how data flows between them.
 
+```
+Raw IATI CSV + Admin shapefiles
+        │
+        ▼
+  00_IATI_cleaning  ──────────────────────────────────────────────────────────┐
+        │ iati-drc-cleaned.csv                                                │
+        ▼                                                                     │
+  01_IDP_cleaning                                                             │
+  (OCHA xlsx files)                                                           │
+        │ departees_eastern_drc.csv                                           │
+        │ returnees_eastern_drc.csv                                           │
+        │ idp_dat_eastern_drc.csv                                             │
+        ▼                                                                     │
+  02_aid_displacement_merge ◄─────────────────────────────────────────────── ┤
+        │ aid_displacement_merged.csv                                         │
+        ▼                                                                     │
+  03_aid_displacement_regression                                              │
+        │ aid_displacement_regression.png                                     │
+                                                                              │
+  04_displacement_analysis (reads departees/returnees CSVs directly)         │
+        │ idp_net_flow_monthly.png                                            │
+        │ displaced_returnees_by_province.png                                 │
+        │ displacement_causes_top10.png                                       │
+        │ displacement_summary_stats.png                                      │
+                                                                              │
+  05_conflict_data_cleaning                                                   │
+  (Raw ACLED/UCDP CSV + Admin-2 shapefile)                                   │
+        │ conflict_dat_cleaned.csv                                            │
+        ▼                                                                     │
+  06_conflict_aid_merge ◄──────────────────────────────────────────────────── ┘
+        │ violence_aid_merged.csv
+        ▼
+  07_aid_violence_scatter ──► scatter_conflict_aid.png
+  08_aid_violence_regression ──► violence_aid_regression.png / .txt
+  09_choropleth_map ──► drc_choropleth.png / .gif / drc_quarterly_metric.csv
+        │ drc_quarterly_metric.csv
+        ▼
+  10_time_underserved_regression ──► underserved_trend.png / underserved_regression.png
+```
+
+Shared helper functions (`fill_deaths`, `assign_admin_level`, and project-wide path constants) live in `utils.py` and are imported by the notebooks that need them.
+
+---
+
+## Order to Run
+
+### 1. [00_IATI_cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/00_IATI_cleaning.ipynb)
+
+**Packages:** `pandas`, `geopandas`, `utils.py`
+
+**Input data:**
+- `iati-activity-locations-in-democratic-republic-of-the-congo.csv` — IATI aid activity records for the DRC from the Humanitarian Data Exchange (HDX). Each row is one geocoded aid activity with fields including: `aid` (project identifier), `location_longitude` / `location_latitude` (point coordinates), `day_start` / `day_end` (project dates), `spend` (USD disbursement), and `description`.
+- `cod_admin_boundaries.shp/cod_admin1.shp` — Admin-1 province polygons for all 26 DRC provinces (HDX COD boundary dataset).
+- `cod_admin_boundaries.shp/cod_admin2.shp` — Admin-2 territory polygons.
+
+**Cleaning steps:**
+1. All geometries are reprojected to EPSG:32635 (meters-based) for accurate distance calculations.
+2. **Admin-1 assignment** — `assign_admin_level()` (from `utils.py`) runs a left spatial join (`predicate='within'`) to assign each aid point to a province. Points that fall outside all polygons (border edge cases) are caught by a nearest-neighbor fallback: `gpd.sjoin_nearest` with `max_distance=55,000` metres. Points still unmatched after both passes (i.e., genuinely outside DRC) are dropped.
+3. **Admin-2 assignment** — the same `assign_admin_level()` function is called a second time with the Admin-2 boundary layer. The Admin-2 name column is auto-detected from a candidate list to handle shapefile inconsistencies across environments.
+4. **Deduplication** — exact duplicate rows are dropped first. Then rows are deduplicated on the key columns `['aid', 'province_name', 'day_start', 'day_end', 'description', 'spend']` to handle cases where the same project appears at multiple coordinates within a province. This retains one row per unique project-province-period combination.
+
+**Key note on join strategy:** All spatial joins use exact geometric matches (point-in-polygon) with a distance-based nearest-neighbor fallback — not fuzzy string matching. Province name strings are not used as the join key here; geometry is.
+
+**Output:** `iati-drc-cleaned.csv` (4,917 rows; 2,836 unique aid projects; 26 provinces; 148 Admin-2 units)
+
+---
+
+### 2. [01_IDP_cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/01_IDP_cleaning.ipynb)
+
+**Packages:** `pandas`, `os`, `re`
+
+**Input data:**
+- `ocha_monthly_departures/` — directory of monthly `.xlsx` snapshots from OCHA tracking displacement departure events. Each file covers one month; each row is one displacement event recording fields including `id` (event identifier), `movement_date`, `person` (people displaced), `cause_label`, `admin1_label` (province), and `admin2_label`.
+- `ocha_monthly_returnees/` — identical structure for return movements.
+
+**Cleaning steps:**
+1. **Version deduplication** — files ending in `__1_.xlsx` are treated as superseded versions; if both `foo.xlsx` and `foo__1_.xlsx` exist, `foo.xlsx` is skipped.
+2. **Snapshot month extraction** — the month is parsed from the filename using a French month-name dictionary (e.g., `'janvier'→'01'`) combined with a 4-digit year regex, inside `extract_snapshot_month()`.
+3. **Sheet detection** — `get_sheet_name()` checks a prioritised list of 18 candidate sheet names to handle inconsistent Excel formatting across files.
+4. **Column filtering** — only the 13 columns in `usecols` are loaded via `load_files()`; files missing `admin1_label` or `person` are skipped.
+5. **Temporal filter** — inside `build_province_panel()` → `filter_and_dedup()`: rows are retained only where `movement_date` falls within the same year and month as the file's snapshot month. This prevents events recorded late from being double-counted across snapshots.
+6. **Event deduplication** — rows are deduplicated on `id` alone, keeping the earliest snapshot appearance. Each physical displacement event should appear exactly once.
+7. **Province filter** — only `['Nord-kivu', 'Sud-kivu', 'Ituri']` are retained. Note: these spellings are lowercase-k, matching the OCHA source; `02_aid_displacement_merge.ipynb` maps these to the IATI capitalisation.
+8. **Panel aggregation** — `build_province_panel()` groups events by `['admin1_label', 'snapshot_month']` and sums to produce `total_displaced` / `total_returnees` and unique site counts.
+9. **Panel merge** — the displacement and returnee panels are merged with an **outer join** on `['admin1_label', 'snapshot_month']` so that months with departures but no returnees (and vice versa) are retained; NaNs are filled with 0.
+
+**Variable definitions:**
+- `total_displaced` — sum of `person` across all departure events in a province-month.
+- `total_returnees` — sum of `person` across all return events in a province-month.
+- `net_monthly_flow` = `total_displaced` − `total_returnees`: positive = net outward displacement; negative = net return.
+
+**Note on saved CSVs:** `departees_eastern_drc.csv` and `returnees_eastern_drc.csv` contain the raw concatenated event-level rows for **all provinces** (before province filtering). The eastern-province filter is re-applied independently by `04_displacement_analysis.ipynb` when it reads these files directly.
+
+**Outputs:** `departees_eastern_drc.csv`, `returnees_eastern_drc.csv`, `idp_dat_eastern_drc.csv`
+
+---
+
+### 3. [02_aid_displacement_merge.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/02_aid_displacement_merge.ipynb)
+
+**Packages:** `pandas`, `numpy`
+
+**Input data:**
+- `idp_dat_eastern_drc.csv` — output of script 2
+- `iati-drc-cleaned.csv` — output of script 1
+
+**Cleaning / prep steps:**
+1. Province names in the IATI data are standardised to match OCHA capitalisation via exact string replacement: `{'Nord-Kivu':'Nord-kivu', 'Sud-Kivu':'Sud-kivu', 'Ituri':'Ituri'}` (applied in `NAME_MAP`). This is an **exact match** on province name strings; no fuzzy matching is used.
+2. IATI data is filtered to the three eastern provinces.
+3. A monthly spend rate is computed for each project inside `compute_monthly_spend()`: `monthly_spend = spend / (day_length / 30.44)`, where `day_length` is project duration in days. Projects with zero duration are assigned `monthly_spend = 0`.
+
+**Merge strategy (`build_aid_panel()`):**
+The merge proceeds in two steps, both using **exact matches** on `['admin1_label', 'snapshot_month']` (province name string + date):
+
+Step 1: A **left join** cross-joins the IDP panel's province-month keys against the IATI project table on province name (`admin1_label` = `location_name`). This produces one row per (IDP observation × IATI project in that province).
+
+Step 2: Two separate aggregations are computed from this crossed table:
+- `new_project_monthly_spend` / `new_project_count` — projects whose `day_start` falls within the prior 6-month window before the snapshot month.
+- `total_active_monthly_spend` / `total_active_projects` — projects where `day_start ≤ snapshot_month` and `day_end ≥ snapshot_month`.
+
+Both aggregations are merged back onto the IDP panel via **left joins** on `['admin1_label', 'snapshot_month']`; unmatched months receive 0. An assertion confirms the row count does not change after the merge.
+
+**Variable definitions:**
+- `new_project_monthly_spend` — sum of `monthly_spend` for all projects starting in the 6 months prior to the snapshot month, in the same province (USD/month).
+- `total_active_monthly_spend` — sum of `monthly_spend` for all projects active (ongoing) during the snapshot month (USD/month).
+- `log_new_project_spend` = `log1p(new_project_monthly_spend)`.
+- `log_total_active_spend` = `log1p(total_active_monthly_spend)`. `log1p` is used so that zero-spend months map to 0 rather than −∞.
+
+**Output:** `aid_displacement_merged.csv`
+
+---
+
+### 4. [03_aid_displacement_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/03_aid_displacement_regression.ipynb)
+
+**Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`, `statsmodels`
+
+**Input data:** `aid_displacement_merged.csv`
+
+**Model specification (fitted in `make_regression_table()`):**
+
+```
+net_monthly_flow_{it} = α_i + β₁·log_new_project_spend_{it} + β₂·log_total_active_spend_{it} + ε_{it}
+```
+
+where *i* indexes province and *t* indexes snapshot month. `α_i` is a province fixed effect (`entity_effects=True`). Standard errors are heteroskedasticity-robust (`cov_type='robust'`). No time fixed effects are included (`time_effects=False`).
+
+**Variable definitions:**
+- `net_monthly_flow` (dependent) — persons displaced minus persons returned in province *i* in month *t* (constructed in `01_IDP_cleaning.ipynb`). Positive values indicate net outward displacement.
+- `log_new_project_spend` — log(1 + sum of monthly spend rates for projects that started in the prior 6 months), measuring the *flow* of new aid into a province.
+- `log_total_active_spend` — log(1 + sum of monthly spend rates for all currently active projects), measuring the *stock* of ongoing aid.
+
+**Source of identification:** Identification relies on within-province variation over time (province fixed effects absorb all time-invariant provincial characteristics). The key assumption is that, conditional on province fixed effects, month-to-month variation in aid spending is not driven by contemporaneous shocks to displacement that are unobserved. This assumption is unlikely to hold perfectly — aid may be endogenously directed toward displacement crises — which motivates the lagged-violence analysis in script 8. This analysis should therefore be interpreted as descriptive/associational rather than causal.
+
+**This is not a predictive analysis** — no train-test split or cross-validation is used.
+
+**Output:** `aid_displacement_regression.png`
+
+---
+
+### 5. [04_displacement_analysis.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/04_displacement_analysis.ipynb)
+
+**Packages:** `pandas`, `numpy`, `matplotlib`
+
+**Input data:** `departees_eastern_drc.csv`, `returnees_eastern_drc.csv` (outputs of script 2)
+
+**Cleaning steps (`load_and_clean()`):** Reloads the raw event-level data and re-applies cleaning: filters to movement dates within the snapshot month, deduplicates on event `id`, filters to eastern provinces, and translates French cause labels to English via exact string replacement in `CAUSE_TRANSLATIONS`. Three encoding variants of "Amélioration des conditions" are mapped to a single English label.
+
+**Outputs:** `idp_net_flow_monthly.png`, `displaced_returnees_by_province.png`, `displacement_causes_top10.png`, `displacement_summary_stats.png`
+
+---
+
+### 6. [05_conflict_data_cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/05_conflict_data_cleaning.ipynb)
+
+**Packages:** `pandas`, `geopandas`, `shapely`
+
+**Input data:**
+- `conflict_data_cod.csv` — conflict event data for the DRC (ACLED/UCDP). Each row is one event with fields including `id`, `latitude`, `longitude`, `year`, `date_start`, and `best` (best estimate of fatalities).
+- `cod_admin_boundaries.shp/cod_admin2.shp` — Admin-2 boundary polygons.
+
+**Cleaning steps:**
+1. Filter to 2021–2026.
+2. Drop rows with missing `latitude` or `longitude`.
+3. Build a GeoDataFrame from conflict point coordinates; align CRS to EPSG:4326 if needed.
+4. **Admin-2 assignment** — left point-in-polygon spatial join (`predicate='within'`) against Admin-2 polygons. Points outside all polygons are retained with `town_admin2 = NaN` (border edge cases); **no nearest-neighbor fallback is applied here**, unlike in script 1. The Admin-2 name column is auto-detected from a candidate list.
+
+**Key difference from script 1:** Conflict points that fall outside all Admin-2 polygons are kept in the data (with missing `town_admin2`) rather than snapped to the nearest polygon. They are effectively dropped when `06_conflict_aid_merge.ipynb` aggregates by `town_admin2`.
+
+**Variable definitions:**
+- `town_admin2` — name of the Admin-2 territory containing the conflict event (exact spatial match).
+- `best` — best-estimate fatality count for the event (sourced directly from ACLED/UCDP; not modified here).
+
+**Output:** `conflict_dat_cleaned.csv`
+
+---
+
+### 7. [06_conflict_aid_merge.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/06_conflict_aid_merge.ipynb)
+
+**Packages:** `pandas`, `numpy`
+
+**Input data:**
+- `iati-drc-cleaned.csv` — output of script 1
+- `conflict_dat_cleaned.csv` — output of script 6
+
+**Merge strategy — three-step exact match on `['admin2_name', 'year_month']`:**
+
+Step 1 — Balanced grid (`build_balanced_grid()`): The universe of Admin-2 units is taken as the union of all `town_admin2` values in the conflict data and all `admin2_name` values in the IATI data (after dropping NAs). A full Cartesian product of these 146 units × 72 months (2021-01 through 2026-12) produces a 10,512-row balanced panel. This ensures that admin2-month cells with no conflict *and* no aid receive true zeros rather than being absent.
+
+Step 2 — Conflict aggregation (`aggregate_conflict()`): Conflict events are grouped by `['town_admin2', 'year_month']` (exact match on string name + period) and summed to produce:
+- `violent_incidents` — count of conflict events (`id`) in the admin2-month.
+- `total_deaths` — sum of `best` (fatality estimates) in the admin2-month.
+
+Step 3 — Aid aggregation with fractional spend (`build_aid_monthly()`): Each IATI project is expanded across every calendar month it overlaps with the 2021–2026 window using a vectorized cross-join (no row-by-row loop). For month *m*, the fractional spend allocated is:
+
+```
+fractional_spend = (active_days_in_month / total_project_days) × total_spend
+```
+
+where `total_project_days = (day_end − day_start).days`, clipped to a minimum of 1; `active_days_in_month` is the number of days the project overlapped with month *m*, computed vectorially via `max(day_start, month_start)` and `min(day_end, month_end)`. This allocation ensures the sum of fractional spend across all months equals the project's total spend. The expanded rows are aggregated by `['admin2_name', 'year_month']` to produce `num_aid_projects` (unique aid IDs) and `total_aid_spend` (sum of fractional spend).
+
+Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined onto the balanced grid; unmatched cells receive 0. An assertion confirms the row count equals the grid size.
+
+**Key note on name matching:** The join between conflict data and IATI data uses exact string matching on `admin2_name`. Both datasets were assigned Admin-2 names from the *same* shapefile (`cod_admin2.shp`) in their respective cleaning scripts, so name strings should align. No fuzzy matching is applied; any Admin-2 unit present in only one dataset still appears in the panel (with zeros for the absent source) because the union of both Admin-2 name sets defines the grid.
+
+**Variable definitions:**
+- `violent_incidents` — number of conflict events recorded in admin2 unit *i* in month *t*.
+- `total_deaths` — sum of ACLED/UCDP best-estimate fatalities in admin2 unit *i* in month *t*.
+- `num_aid_projects` — count of distinct IATI project IDs with any fractional activity in admin2 unit *i* in month *t*.
+- `total_aid_spend` — sum of fractional USD spend allocated to admin2 unit *i* in month *t* based on project overlap.
+
+**Output:** `violence_aid_merged.csv` (10,512 rows: 146 admin2 units × 72 months)
+
+---
+
+### 8. [07_aid_violence_scatter.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/07_aid_violence_scatter.ipynb)
+
+**Packages:** `pandas`, `numpy`, `matplotlib`, `adjustText`, `utils.py`
+
+**Input data:** `violence_aid_merged.csv`
+
+**Processing steps:**
+
+1. **Death-fill imputation (`fill_deaths()` from `utils.py`):** For each town, zero-death months are imputed as follows: if the streak of consecutive zero-death months is fewer than 6, the last observed non-zero death count is carried forward; if the streak reaches 6 or more, or if no prior non-zero value exists, the small constant `0.5` is used. This prevents log(0) = −∞ in the efficiency metric while preserving the signal from persistent conflict. The raw `total_deaths` column is not modified; results are stored in `deaths_filled`.
+
+2. **Town-level aggregation (`build_town_averages()`):** For each town, sum `total_aid_spend` and `deaths_filled` across all months, then divide by the number of months observed to get per-month averages (`avg_aid_pm`, `avg_deaths_pm`).
+
+3. **Efficiency metric:**
+   ```
+   metric = log1p(avg_aid_pm) − log(max(avg_deaths_pm, 0.5))
+   ```
+   Higher values indicate more aid spend per death (better served); lower values indicate less aid per death (underserved).
+
+4. **Categorisation (`categorize_towns()`, vectorised with `np.select`):**
+   - *Underserved*: `metric ≤ 25th percentile` of the metric distribution across all towns.
+   - *Overserved*: `metric ≥ 75th percentile` **AND** `log1p(avg_aid_pm) ≥ 75th percentile` of log aid — i.e., high metric driven by genuinely high aid, not just absence of deaths.
+   - *Other*: all remaining towns.
+
+**Variable definitions:**
+- `log_aid` = `log1p(avg_aid_pm)` — log of average monthly aid spend per town (USD, +1 offset).
+- `log_deaths` = `log(max(avg_deaths_pm, 0.5))` — log of average monthly death-fill-imputed deaths per town.
+- `metric` = `log_aid − log_deaths` — log aid-to-death ratio; the town-level efficiency score.
+
+**Output:** `scatter_conflict_aid.png`
+
+---
+
+### 9. [08_aid_violence_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/08_aid_violence_regression.ipynb)
+
+**Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`
+
+**Input data:** `violence_aid_merged.csv`
+
+**Processing steps:**
+
+1. Log transforms:
+   - `log_aid_spend` = `log(total_aid_spend + 1)`
+   - `log_deaths` = `log(total_deaths + 1)`
+
+   Note: unlike script 7, **no death-fill imputation is applied** here. Zero-death months map to `log(0+1) = 0`, which is informative (no deaths that month).
+
+2. Lag columns: Within each town, `log_deaths` is shifted by 1, 3, and 6 months to create `log_deaths_lag1`, `log_deaths_lag3`, `log_deaths_lag6`.
+
+**Model specification (`run_twfe()`):**
+
+Three separate models, one per lag:
+
+```
+log_aid_spend_{it} = α_i + γ_t + β·log_deaths_lag_k_{it} + ε_{it}
+```
+
+where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = month fixed effect (two-way FE), and *k* ∈ {1, 3, 6}. Standard errors are clustered by town (`cov_type='clustered', cluster_entity=True`).
+
+**Source of identification:** The two-way fixed effects design identifies β from within-town, within-month variation — i.e., deviations from a town's average aid spending that co-move with deviations from that town's average lagged death toll, after removing common month-level shocks. The lag structure (1, 3, 6 months) probes whether aid responds to *past* violence rather than contemporaneous crisis, which would be more consistent with a causal interpretation. However, reverse causality (aid anticipating future violence) and omitted time-varying town-level confounders remain threats to causal identification. Results should be interpreted as evidence of a systematic association, not a clean causal estimate.
+
+**This is not a predictive analysis** — no train-test split or cross-validation is used.
+
+**Outputs:** `violence_aid_regression.txt`, `violence_aid_regression.png`
+
+---
+
+### 10. [09_choropleth_map.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/09_choropleth_map.ipynb)
+
+**Packages:** `pandas`, `geopandas`, `numpy`, `matplotlib`, `utils.py`
+
+**Input data:** `violence_aid_merged.csv`, `cod_admin_boundaries.shp/cod_admin2.shp`, `cod_admin_boundaries.shp/cod_admin1.shp`
+
+**Processing steps:**
+
+1. **Death-fill imputation** — `fill_deaths()` imported from `utils.py` (same function as script 7; shared via utils to ensure identical behavior).
+
+2. **Quarterly aggregation:** Monthly panel rows are grouped by `['admin2_name', 'quarter']` (calendar quarter), summing `total_aid_spend` and `deaths_filled`.
+
+3. **Quarterly efficiency metric:**
+   ```
+   metric = log1p(quarterly_aid_spend) − log(max(quarterly_deaths_filled, 0.5))
+   ```
+
+4. **Choropleth join (`make_static()`):** The Admin-2 shapefile is merged with the quarterly metric via a **left join** on `adm2_name` (shapefile) = `admin2_name` (panel), using **exact string matching**. Territories with no panel match are shown as light gray ("no data").
+
+5. **Color scale:** A 9-bin quantile-based `BoundaryNorm` is applied so each color band covers an equal share of the metric distribution. Dark crimson = low log($/death) = underserved; light yellow = high log($/death) = overserved.
+
+**Intermediate output saved for downstream use:** `drc_quarterly_metric.csv` — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
+
+**Outputs:** `drc_quarterly_metric.csv`, `drc_choropleth.png` (most recent quarter), `drc_choropleth.gif` (all 24 quarters animated)
+
+---
+
+### 11. [10_time_underserved_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/10_time_under-served_regression.ipynb)
+
+**Packages:** `pandas`, `numpy`, `matplotlib`, `scipy`, `statsmodels`
+
+**Input data:** `drc_quarterly_metric.csv` — output of script 10
+
+**Processing steps:**
+
+1. **Underserved classification:** A territory-quarter is classified as underserved if its `metric` is at or below the 25th percentile of the metric computed across *all* territory-quarters (a fixed global threshold). This threshold is computed once and held constant, so the count of underserved territories is comparable across time.
+
+2. **Time-series aggregation:** For each quarter, sum the underserved indicator to get `n_underserved` (count) and mean it to get `pct_underserved` (share). A sequential integer index `t` (0, 1, 2, …) is constructed as the independent variable.
+
+3. **OLS trend models:**
+   ```
+   n_underserved_t   = α + β·t + ε_t
+   pct_underserved_t = α + β·t + ε_t
+   ```
+   Both are simple OLS regressions of the quarterly aggregate on the time index, testing whether the number/share of underserved territories has a statistically significant linear trend over the study period.
+
+4. **Mann-Kendall test:** A non-parametric Kendall's τ test assesses monotonic trend without assuming normality. This complements the OLS test.
+
+5. **Structural break analysis:** The series is split at quarter index `t = 16` (2025 Q1), corresponding to the Trump inauguration and USAID funding freeze. Separate OLS trend models are fit on the pre-break (`t < 16`) and post-break (`t ≥ 16`) subsamples using `trend_line()` / `eval_trend()` helpers. Trend lines are evaluated at continuous date ranges — spanning from the left edge of the first bar to the right edge of the last bar in each segment — and meet exactly at the break date for visual continuity.
+
+**Variable definitions:**
+- `metric` — quarterly log(aid/death) efficiency score for each territory-quarter, carried over from `09_choropleth_map.ipynb`.
+- `underserved` — binary indicator: 1 if `metric ≤ global 25th percentile`, 0 otherwise.
+- `n_underserved` — count of underserved territory-quarters per quarter.
+- `pct_underserved` — share of all territories classified as underserved in a given quarter.
+- `t` — integer quarter index (0 = 2021 Q1, 1 = 2021 Q2, …); used as the time regressor.
+
+**Source of identification:** This is a descriptive time-series trend analysis, not a causal model. The OLS slope on `t` estimates the average linear change in underservice per quarter. The structural break at 2025 Q1 is chosen *a priori* based on the known policy event (USAID freeze), not data-driven, which avoids pre-testing bias but means the break date is an assumption. A statistically significant post-break acceleration would be consistent with — but not proof of — a policy effect, since other concurrent shocks (e.g., escalating M23 conflict) could explain the same pattern.
+
+**This is not a predictive analysis** — no train-test split or cross-validation is used.
+
+**Outputs:** `underserved_trend.png`, `underserved_regression.png`
