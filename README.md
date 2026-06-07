@@ -340,6 +340,8 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
 **Outputs:** `violence_aid_regression.txt`, `violence_aid_regression.png`
+   * I created a .txt file because previously it was allowing me to export as a .png and I had to manually convert. The .txt file is an
+     artifact of this and is the exact same thing as the .png version.  
 
 ---
 
