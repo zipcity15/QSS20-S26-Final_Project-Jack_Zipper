@@ -1,7 +1,7 @@
 # Aid, Displacement, and Violence in the DRC: An analysis how aid impacts IDP flows in the Eastern DRC and how violence has impacted patterns of aid spending.
 ### Jack Zipper's Final Project for QSS 20
 
-[Google Drive link for data here]()
+[Google Drive link for data here](https://drive.google.com/drive/folders/1uCD0Pz8TyrORPHGUJoKdhrBjs3u54un1)
 
 ---
 
@@ -63,7 +63,7 @@ Shared helper functions (`fill_deaths`, `assign_admin_level`, and project-wide p
 
 ## `utils.py` — Shared Module
 
-**Location:** `code/utils.py`
+**Location:** [code/utils.py](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/utils.py)
 
 All notebooks that need shared logic import from this file via:
 ```python
@@ -96,9 +96,9 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 **Packages:** `pandas`, `geopandas`, `utils.py`
 
 **Input data:**
-- `iati-activity-locations-in-democratic-republic-of-the-congo.csv` — IATI aid activity records for the DRC from the Humanitarian Data Exchange (HDX). Each row is one geocoded aid activity with fields including: `aid` (project identifier), `location_longitude` / `location_latitude` (point coordinates), `day_start` / `day_end` (project dates), `spend` (USD disbursement), and `description`.
-- `cod_admin_boundaries.shp/cod_admin1.shp` — Admin-1 province polygons for all 26 DRC provinces (HDX COD boundary dataset).
-- `cod_admin_boundaries.shp/cod_admin2.shp` — Admin-2 territory polygons.
+- [iati-activity-locations-in-democratic-republic-of-the-congo.csv](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=sharing) — IATI aid activity records for the DRC from the Humanitarian Data Exchange (HDX). Each row is one geocoded aid activity with fields including: `aid` (project identifier), `location_longitude` / `location_latitude` (point coordinates), `day_start` / `day_end` (project dates), `spend` (USD disbursement), and `description`.
+- [cod_admin_boundaries.shp/cod_admin1.shp](https://drive.google.com/file/d/1W3aOJXuyvs_mM93G-dXae_p3jZ32Ad1Z/view?usp=sharing) — Admin-1 province polygons for all 26 DRC provinces (HDX COD boundary dataset).
+- [cod_admin_boundaries.shp/cod_admin2.shp](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=sharing) — Admin-2 territory polygons.
 
 **Cleaning steps:**
 1. All geometries are reprojected to EPSG:32635 (meters-based) for accurate distance calculations.
@@ -108,7 +108,7 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 
 **Key note on join strategy:** All spatial joins use exact geometric matches (point-in-polygon) with a distance-based nearest-neighbor fallback — not fuzzy string matching. Province name strings are not used as the join key here; geometry is.
 
-**Output:** `iati-drc-cleaned.csv` (4,917 rows; 2,836 unique aid projects; 26 provinces; 148 Admin-2 units)
+**Output:** [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=sharing) (4,917 rows; 2,836 unique aid projects; 26 provinces; 148 Admin-2 units)
 
 ---
 
@@ -117,8 +117,8 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 **Packages:** `pandas`, `os`, `re`
 
 **Input data:**
-- `ocha_monthly_departures/` — directory of monthly `.xlsx` snapshots from OCHA tracking displacement departure events. Each file covers one month; each row is one displacement event recording fields including `id` (event identifier), `movement_date`, `person` (people displaced), `cause_label`, `admin1_label` (province), and `admin2_label`.
-- `ocha_monthly_returnees/` — identical structure for return movements.
+- [ocha_monthly_departures/](https://drive.google.com/drive/folders/1NLRIQNovCWeF_fFrpD_ETHwfdK1y_wn5?usp=drive_link) — directory of monthly `.xlsx` snapshots from OCHA tracking displacement departure events. Each file covers one month; each row is one displacement event recording fields including `id` (event identifier), `movement_date`, `person` (people displaced), `cause_label`, `admin1_label` (province), and `admin2_label`.
+- [ocha_monthly_returnees/](https://drive.google.com/drive/folders/1ePZzNn9P5DOidYD1ahUGLYKGeuXZpPIH?usp=drive_link) — identical structure for return movements.
 
 **Cleaning steps:**
 1. **Version deduplication** — files ending in `__1_.xlsx` are treated as superseded versions; if both `foo.xlsx` and `foo__1_.xlsx` exist, `foo.xlsx` is skipped.
@@ -136,9 +136,9 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 - `total_returnees` — sum of `person` across all return events in a province-month.
 - `net_monthly_flow` = `total_displaced` − `total_returnees`: positive = net outward displacement; negative = net return.
 
-**Note on saved CSVs:** `departees_eastern_drc.csv` and `returnees_eastern_drc.csv` contain the raw concatenated event-level rows for **all provinces** (before province filtering). The eastern-province filter is re-applied independently by `04_displacement_analysis.ipynb` when it reads these files directly.
+**Outputs:** [departees_eastern_drc.csv](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [returnees_eastern_drc.csv](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link), [idp_dat_eastern_drc.csv](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link)
 
-**Outputs:** `departees_eastern_drc.csv`, `returnees_eastern_drc.csv`, `idp_dat_eastern_drc.csv`
+**Note on saved CSVs:** `departees_eastern_drc.csv` and `returnees_eastern_drc.csv` contain the raw concatenated event-level rows for **all provinces** (before province filtering). The eastern-province filter is re-applied independently by `04_displacement_analysis.ipynb` when it reads these files directly.
 
 ---
 
