@@ -277,7 +277,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 ---
 
-### 8. [07_aid_violence_scatter.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/07_aid_violence_scatter.ipynb)
+### 8. [07_aid_violence_scatter.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/07_aid%2Bviolence_scatter.ipynb)
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `adjustText`, utils.py
 
