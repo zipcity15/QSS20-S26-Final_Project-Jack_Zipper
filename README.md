@@ -96,9 +96,9 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 **Packages:** `pandas`, `geopandas`, `utils.py`
 
 **Input data:**
-- [iati-activity-locations-in-democratic-republic-of-the-congo.csv](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=sharing) — IATI aid activity records for the DRC from the Humanitarian Data Exchange (HDX). Each row is one geocoded aid activity with fields including: `aid` (project identifier), `location_longitude` / `location_latitude` (point coordinates), `day_start` / `day_end` (project dates), `spend` (USD disbursement), and `description`.
-- [cod_admin_boundaries.shp/cod_admin1.shp](https://drive.google.com/file/d/1W3aOJXuyvs_mM93G-dXae_p3jZ32Ad1Z/view?usp=sharing) — Admin-1 province polygons for all 26 DRC provinces (HDX COD boundary dataset).
-- [cod_admin_boundaries.shp/cod_admin2.shp](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=sharing) — Admin-2 territory polygons.
+- [iati-activity-locations-in-democratic-republic-of-the-congo.csv](https://drive.google.com/file/d/1lo-Pedx_OcgNwm4YNmWbhoMqWIOmNGpa/view?usp=drive_link) — IATI aid activity records for the DRC from the Humanitarian Data Exchange (HDX). Each row is one geocoded aid activity with fields including: `aid` (project identifier), `location_longitude` / `location_latitude` (point coordinates), `day_start` / `day_end` (project dates), `spend` (USD disbursement), and `description`.
+- [cod_admin_boundaries.shp/cod_admin1.shp](https://drive.google.com/file/d/1W3aOJXuyvs_mM93G-dXae_p3jZ32Ad1Z/view?usp=drive_link) — Admin-1 province polygons for all 26 DRC provinces (HDX COD boundary dataset).
+- [cod_admin_boundaries.shp/cod_admin2.shp](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link) — Admin-2 territory polygons.
 
 **Cleaning steps:**
 1. All geometries are reprojected to EPSG:32635 (meters-based) for accurate distance calculations.
@@ -147,8 +147,8 @@ Note that not all functions are put in `utils.py`. Most functions are defined at
 **Packages:** `pandas`, `numpy`
 
 **Input data:**
-- `idp_dat_eastern_drc.csv` — output of script 2
-- `iati-drc-cleaned.csv` — output of script 1
+- [`idp_dat_eastern_drc.csv`](https://drive.google.com/file/d/1tceOJ3baq0-77X8cAsu3vlZa6JRHLd1l/view?usp=drive_link) — output of script 2
+- [`iati-drc-cleaned.csv`](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
 
 **Cleaning / prep steps:**
 1. Province names in the IATI data are standardised to match OCHA capitalisation via exact string replacement: `{'Nord-Kivu':'Nord-kivu', 'Sud-Kivu':'Sud-kivu', 'Ituri':'Ituri'}` (applied in `NAME_MAP`). This is an **exact match** on province name strings; no fuzzy matching is used.
@@ -172,7 +172,7 @@ Both aggregations are merged back onto the IDP panel via **left joins** on `['ad
 - `log_new_project_spend` = `log1p(new_project_monthly_spend)`.
 - `log_total_active_spend` = `log1p(total_active_monthly_spend)`. `log1p` is used so that zero-spend months map to 0 rather than −∞.
 
-**Output:** `aid_displacement_merged.csv`
+**Output:** [`aid_displacement_merged.csv`](https://drive.google.com/file/d/1Q1NMYft8mfj2y7zeKhPXQPAeyS-tiNdQ/view?usp=drive_link)
 
 ---
 
@@ -180,7 +180,7 @@ Both aggregations are merged back onto the IDP panel via **left joins** on `['ad
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`, `statsmodels`
 
-**Input data:** `aid_displacement_merged.csv`
+**Input data:** [`aid_displacement_merged.csv`](https://drive.google.com/file/d/1Q1NMYft8mfj2y7zeKhPXQPAeyS-tiNdQ/view?usp=drive_link)
 
 **Model specification (fitted in `make_regression_table()`):**
 
@@ -199,7 +199,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
-**Output:** `aid_displacement_regression.png`
+**Output:** [`aid_displacement_regression.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/aid_displacement_regression.png)
 
 ---
 
@@ -207,11 +207,11 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **Packages:** `pandas`, `numpy`, `matplotlib`
 
-**Input data:** `departees_eastern_drc.csv`, `returnees_eastern_drc.csv` (outputs of script 2)
+**Input data:** [`departees_eastern_drc.csv`](https://drive.google.com/file/d/1kOsBAcxX9Rggl_hNRpQzrJLPTbIjQ3_4/view?usp=drive_link), [`returnees_eastern_drc.csv`](https://drive.google.com/file/d/1FnkMgswunkkrivcyzaXED5-ObT7g6aMa/view?usp=drive_link) (outputs of script 2)
 
 **Cleaning steps (`load_and_clean()`):** Reloads the raw event-level data and re-applies cleaning: filters to movement dates within the snapshot month, deduplicates on event `id`, filters to eastern provinces, and translates French cause labels to English via exact string replacement in `CAUSE_TRANSLATIONS`. Three encoding variants of "Amélioration des conditions" are mapped to a single English label.
 
-**Outputs:** `idp_net_flow_monthly.png`, `displaced_returnees_by_province.png`, `displacement_causes_top10.png`, `displacement_summary_stats.png`
+**Outputs:** [`idp_net_flow_monthly.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/idp_net_flow_monthly.png), [`displaced_returnees_by_province.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displaced_returnees_by_province.png), [`displacement_causes_top10.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displacement_causes_top10.png), [`displacement_summary_stats.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/displacement_summary_stats.png)
 
 ---
 
@@ -220,8 +220,8 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 **Packages:** `pandas`, `geopandas`, `shapely`
 
 **Input data:**
-- `conflict_data_cod.csv` — conflict event data for the DRC (ACLED/UCDP). Each row is one event with fields including `id`, `latitude`, `longitude`, `year`, `date_start`, and `best` (best estimate of fatalities).
-- `cod_admin_boundaries.shp/cod_admin2.shp` — Admin-2 boundary polygons.
+- [`conflict_data_cod.csv`](https://drive.google.com/file/d/1pr2mdSuG7NL-_apsAIDJet5DZWsUetYh/view?usp=drive_link) — conflict event data for the DRC (ACLED/UCDP). Each row is one event with fields including `id`, `latitude`, `longitude`, `year`, `date_start`, and `best` (best estimate of fatalities).
+- [`cod_admin_boundaries.shp/cod_admin2.shp`](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link) — Admin-2 boundary polygons.
 
 **Cleaning steps:**
 1. Filter to 2021–2026.
@@ -235,7 +235,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 - `town_admin2` — name of the Admin-2 territory containing the conflict event (exact spatial match).
 - `best` — best-estimate fatality count for the event (sourced directly from ACLED/UCDP; not modified here).
 
-**Output:** `conflict_dat_cleaned.csv`
+**Output:** [`conflict_dat_cleaned.csv`](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link)
 
 ---
 
@@ -244,8 +244,8 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 **Packages:** `pandas`, `numpy`
 
 **Input data:**
-- `iati-drc-cleaned.csv` — output of script 1
-- `conflict_dat_cleaned.csv` — output of script 6
+- [`iati-drc-cleaned.csv`](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 1
+- [`conflict_dat_cleaned.csv`](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link) — output of script 6
 
 **Merge strategy — three-step exact match on `['admin2_name', 'year_month']`:**
 
@@ -273,7 +273,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 - `num_aid_projects` — count of distinct IATI project IDs with any fractional activity in admin2 unit *i* in month *t*.
 - `total_aid_spend` — sum of fractional USD spend allocated to admin2 unit *i* in month *t* based on project overlap.
 
-**Output:** `violence_aid_merged.csv` (10,512 rows: 146 admin2 units × 72 months)
+**Output:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link) (10,512 rows: 146 admin2 units × 72 months)
 
 ---
 
@@ -281,7 +281,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `adjustText`, `utils.py`
 
-**Input data:** `violence_aid_merged.csv`
+**Input data:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link)
 
 **Processing steps:**
 
@@ -305,7 +305,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 - `log_deaths` = `log(max(avg_deaths_pm, 0.5))` — log of average monthly death-fill-imputed deaths per town.
 - `metric` = `log_aid − log_deaths` — log aid-to-death ratio; the town-level efficiency score.
 
-**Output:** `scatter_conflict_aid.png`
+**Output:** [`scatter_conflict_aid.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/scatter_conflict_aid.png)
 
 ---
 
@@ -313,7 +313,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`
 
-**Input data:** `violence_aid_merged.csv`
+**Input data:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link)
 
 **Processing steps:**
 
@@ -339,7 +339,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
-**Outputs:** `violence_aid_regression.txt`, `violence_aid_regression.png`
+**Outputs:** [`violence_aid_regression.txt`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/violence_aid_regression.txt), [`violence_aid_regression.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/violence_aid_regression.png)
    * I created a .txt file because previously it was allowing me to export as a .png and I had to manually convert. The .txt file is an
      artifact of this and is the exact same thing as the .png version.  
 
@@ -349,7 +349,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **Packages:** `pandas`, `geopandas`, `numpy`, `matplotlib`, `utils.py`
 
-**Input data:** `violence_aid_merged.csv`, `cod_admin_boundaries.shp/cod_admin2.shp`, `cod_admin_boundaries.shp/cod_admin1.shp`
+**Input data:** [`violence_aid_merged.csv`](https://drive.google.com/file/d/1MiG9g8XdU-cZEvYpKw9TiqrHG9fkpi2d/view?usp=drive_link), [`cod_admin_boundaries.shp/cod_admin2.shp`](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link), [`cod_admin_boundaries.shp/cod_admin1.shp`](https://drive.google.com/file/d/1W3aOJXuyvs_mM93G-dXae_p3jZ32Ad1Z/view?usp=drive_link)
 
 **Processing steps:**
 
@@ -366,13 +366,13 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 5. **Color scale:** A 9-bin quantile-based `BoundaryNorm` is applied so each color band covers an equal share of the metric distribution. Dark crimson = low log($/death) = underserved; light yellow = high log($/death) = overserved.
 
-**Intermediate output saved for downstream use:** `drc_quarterly_metric.csv` — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
+**Intermediate output saved for downstream use:** [`drc_quarterly_metric.csv`](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — one row per (admin2, quarter) with `aid_spend`, `deaths_filled`, `log_aid`, `log_deaths`, and `metric`.
 
 **Outputs:**
-- `drc_quarterly_metric.csv` — quarterly efficiency metric, read by script 11.
-- `drc_choropleth_start.png` — static choropleth for the **first quarter of the analysis** (2021 Q1), providing a baseline snapshot of aid efficiency across DRC territories.
-- `drc_choropleth_end.png` — static choropleth for the **last quarter of the analysis** (2026 Q4), showing how the distribution of aid efficiency has shifted over the study period.
-- `drc_choropleth.gif` — animated choropleth cycling through all 24 quarters (2021 Q1 – 2026 Q4) at 2 fps. Both static images use the same color scale as the GIF so they are directly comparable.
+- [`drc_quarterly_metric.csv`](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — quarterly efficiency metric, read by script 11.
+- [`drc_choropleth_start.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_start.png) — static choropleth for the **first quarter of the analysis** (2021 Q1), providing a baseline snapshot of aid efficiency across DRC territories.
+- [`drc_choropleth_end.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth_end.png) — static choropleth for the **last quarter of the analysis** (2026 Q4), showing how the distribution of aid efficiency has shifted over the study period.
+- [`drc_choropleth.gif`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/drc_choropleth.gif) — animated choropleth cycling through all 24 quarters (2021 Q1 – 2026 Q4) at 2 fps. Both static images use the same color scale as the GIF so they are directly comparable.
 
 ---
 
@@ -380,7 +380,7 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `scipy`, `statsmodels`
 
-**Input data:** `drc_quarterly_metric.csv` — output of script 10
+**Input data:** [`drc_quarterly_metric.csv`](https://drive.google.com/file/d/1-UVxxe9oJNCPKoF3BtaTCfpohM89nKTw/view?usp=drive_link) — output of script 10
 
 **Processing steps:**
 
@@ -410,4 +410,4 @@ where *i* = Admin-2 town, *t* = month, `α_i` = town fixed effect, `γ_t` = mont
 
 **This is not a predictive analysis** — no train-test split or cross-validation is used.
 
-**Outputs:** `underserved_trend.png`, `underserved_regression.png`
+**Outputs:** [`underserved_trend.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/underserved_trend.png), [`underserved_regression.png`](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/underserved_regression.png)
