@@ -176,7 +176,7 @@ Both aggregations are merged back onto the IDP panel via **left joins** on `['ad
 
 ---
 
-### 4. [03_aid+displacement_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/03_aid%2Bdisplacement_regression.ipynb)
+### 4. [03_aid_displacement_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/03_aid_displacement_regression.ipynb)
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`, `statsmodels`
 
@@ -277,7 +277,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 ---
 
-### 8. [07_aid+violence_scatter.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/07_aid%2Bviolence_scatter.ipynb)
+### 8. [07_aid_violence_scatter.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/07_aid_violence_scatter.ipynb)
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `adjustText`, utils.py
 
@@ -309,7 +309,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 ---
 
-### 9. [08_aid+violence_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/08_aid%2Bviolence_regression.ipynb)
+### 9. [08_aid_violence_regression.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/08_aid_violence_regression.ipynb)
 
 **Packages:** `pandas`, `numpy`, `matplotlib`, `linearmodels`
 
