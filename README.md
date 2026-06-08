@@ -43,7 +43,7 @@ Raw IATI CSV + Admin shapefiles
         │ displacement_summary_stats.png                                      │
                                                                               │
   05_conflict_data_cleaning                                                   │
-  (Raw ACLED/UCDP CSV + Admin-2 shapefile)                                   │
+  (ACLED HRP xlsx files — political violence + civilian targeting)            │
         │ conflict_dat_cleaned.csv                                            │
         ▼                                                                     │
   06_conflict_aid_merge ◄──────────────────────────────────────────────────── ┘
@@ -217,23 +217,29 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 ### 6. [05_conflict_data_cleaning.ipynb](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/code/05_conflict_data_cleaning.ipynb)
 
-**Packages:** `pandas`, `geopandas`, `shapely`
+**Packages:** `pandas`
+
+**Data source change (updated):** This notebook previously used the UCDP Georeferenced Event Dataset (event-level, GPS-coded incidents). It now uses the **ACLED Humanitarian Response Plan (HRP) dashboard data** for the DRC, which is pre-aggregated to Admin-2 × month and covers 1997–2026, including post-2024 months unavailable in UCDP GED v24.1.
 
 **Input data:**
-- [conflict_data_cod.csv](https://drive.google.com/file/d/1pr2mdSuG7NL-_apsAIDJet5DZWsUetYh/view?usp=drive_link) — conflict event data for the DRC (ACLED/UCDP). Each row is one event with fields including `id`, `latitude`, `longitude`, `year`, `date_start`, and `best` (best estimate of fatalities).
-- [cod_admin_boundaries.shp/cod_admin2.shp](https://drive.google.com/file/d/11LfIWN80UPoHo3AZuAvzmRxloK-XU-Gj/view?usp=drive_link) — Admin-2 boundary polygons.
+- `democratic-republic-of-congo_hrp_political_violence_events_and_fatalities_by_month-year_as-of-0.xlsx` — ACLED political violence events and fatalities aggregated by Admin-2 territory and month. 66,364 rows × 10 columns; one row per territory-month.
+- `democratic-republic-of-congo_hrp_civilian_targeting_events_and_fatalities_by_month-year_as-of-0.xlsx` — ACLED civilian targeting events and fatalities, same structure and identical territory-month keys.
 
 **Cleaning steps:**
-1. Filter to 2021–2026.
-2. Drop rows with missing `latitude` or `longitude`.
-3. Build a GeoDataFrame from conflict point coordinates; align CRS to EPSG:4326 if needed.
-4. **Admin-2 assignment** — left point-in-polygon spatial join (`predicate='within'`) against Admin-2 polygons. Points outside all polygons are retained with `town_admin2 = NaN` (border edge cases); **no nearest-neighbor fallback is applied here**, unlike in script 1. The Admin-2 name column is auto-detected from a candidate list.
+1. Read the `Data` sheet from both files (skipping the `TOU` licensing sheet).
+2. Sum `Events` and `Fatalities` across the two violence categories (political violence + civilian targeting) for each territory-month.
+3. Filter to 2021–2026.
+4. **Name harmonisation:** 25 ACLED Admin-2 units are sub-territory cities (e.g., Bunia, Baraka, Kolwezi) not present in the COD shapefile. These represent ~5% of fatalities and are remapped to their parent COD Admin-2 territory via a manual lookup table (e.g., Baraka → Fizi, Bunia → Djugu, Kamituga → Mwenga). After remapping, events and fatalities are re-aggregated to the territory × month level.
+5. Build `date_start` (first day of the month) and `year_month` (period string) columns from the `Month` and `Year` fields.
 
-**Key difference from script 1:** Conflict points that fall outside all Admin-2 polygons are kept in the data (with missing `town_admin2`) rather than snapped to the nearest polygon. They are effectively dropped when 06_conflict_aid_merge.ipynb aggregates by `town_admin2`.
+**Key difference from prior UCDP version:** No spatial join is performed — ACLED data arrives pre-aggregated to Admin-2 territories. The output is therefore already at territory × month granularity, unlike the UCDP output which was event-level. Script 06's `aggregate_conflict()` function was updated accordingly to pass through the pre-aggregated columns rather than performing a groupby-agg.
 
 **Variable definitions:**
-- `town_admin2` — name of the Admin-2 territory containing the conflict event (exact spatial match).
-- `best` — best-estimate fatality count for the event (sourced directly from ACLED/UCDP; not modified here).
+- `town_admin2` — COD Admin-2 territory name (after city-to-territory remapping).
+- `violent_incidents` — total ACLED events (political violence + civilian targeting) in the territory-month.
+- `total_deaths` — total ACLED fatalities (political violence + civilian targeting) in the territory-month.
+- `date_start` — first calendar day of the month (for date filtering in downstream scripts).
+- `year_month` — period string (e.g., `'2021-03'`) used as the panel join key.
 
 **Output:** [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link)
 
@@ -251,9 +257,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 Step 1 — Balanced grid (`build_balanced_grid()`): The universe of Admin-2 units is taken as the union of all `town_admin2` values in the conflict data and all `admin2_name` values in the IATI data (after dropping NAs). A full Cartesian product of these 146 units × 72 months (2021-01 through 2026-12) produces a 10,512-row balanced panel. This ensures that admin2-month cells with no conflict *and* no aid receive true zeros rather than being absent.
 
-Step 2 — Conflict aggregation (`aggregate_conflict()`): Conflict events are grouped by `['town_admin2', 'year_month']` (exact match on string name + period) and summed to produce:
-- `violent_incidents` — count of conflict events (`id`) in the admin2-month.
-- `total_deaths` — sum of `best` (fatality estimates) in the admin2-month.
+Step 2 — Conflict pass-through (`aggregate_conflict()`): Because the ACLED data from script 05 is already aggregated to territory × month, this function simply renames `town_admin2` → `admin2_name` and selects the `violent_incidents` and `total_deaths` columns — no groupby is needed.
 
 Step 3 — Aid aggregation with fractional spend (`build_aid_monthly()`): Each IATI project is expanded across every calendar month it overlaps with the 2021–2026 window using a vectorized cross-join (no row-by-row loop). For month *m*, the fractional spend allocated is:
 
@@ -291,9 +295,9 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 3. **Efficiency metric:**
    ```
-   metric = log1p(avg_aid_pm) − log(max(avg_deaths_pm, 0.5))
+   metric = log1p(avg_aid_pm) − log1p(avg_deaths_pm)
    ```
-   Higher values indicate more aid spend per death (better served); lower values indicate less aid per death (underserved).
+   Both aid and deaths use `log1p` (log(1 + x)) so that zero values map to 0 rather than −∞ or negative numbers. Higher values indicate more aid spend per death (better served); lower values indicate less aid per death (underserved).
 
 4. **Categorisation (`categorize_towns()`, vectorised with `np.select`):**
    - *Underserved*: `metric ≤ 25th percentile` of the metric distribution across all towns.
@@ -301,8 +305,8 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
    - *Other*: all remaining towns.
 
 **Variable definitions:**
-- `log_aid` = `log1p(avg_aid_pm)` — log of average monthly aid spend per town (USD, +1 offset).
-- `log_deaths` = `log(max(avg_deaths_pm, 0.5))` — log of average monthly death-fill-imputed deaths per town.
+- `log_aid` = `log1p(avg_aid_pm)` — log(1 + average monthly aid spend) per town (USD).
+- `log_deaths` = `log1p(avg_deaths_pm)` — log(1 + average monthly death-fill-imputed deaths) per town. Using `log1p` ensures all values are ≥ 0; towns with no deaths score 0 on the x-axis rather than a negative number.
 - `metric` = `log_aid − log_deaths` — log aid-to-death ratio; the town-level efficiency score.
 
 **Output:** [scatter_conflict_aid.png](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/output/scatter_conflict_aid.png)
