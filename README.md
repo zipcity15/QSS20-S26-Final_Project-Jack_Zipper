@@ -4,6 +4,8 @@
 
 [Google Drive link for data here](https://drive.google.com/drive/folders/1uCD0Pz8TyrORPHGUJoKdhrBjs3u54un1)
 
+[Final Paper link here](https://github.com/zipcity15/QSS20-S26-Final_Project-Jack_Zipper/blob/main/QSS_20_Final_Paper_Jack_Zipper.pdf)
+
 ---
 
 ## Guiding Question
