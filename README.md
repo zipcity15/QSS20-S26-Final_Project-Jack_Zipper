@@ -230,8 +230,6 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 4. **Name harmonisation:** 25 ACLED Admin-2 units are sub-territory cities (e.g., Bunia, Baraka, Kolwezi) not present in the COD shapefile. These represent ~5% of fatalities and are remapped to their parent COD Admin-2 territory via a manual lookup table (e.g., Baraka → Fizi, Bunia → Djugu, Kamituga → Mwenga). After remapping, events and fatalities are re-aggregated to the territory × month level.
 5. Build `date_start` (first day of the month) and `year_month` (period string) columns from the `Month` and `Year` fields.
 
-**Key difference from prior UCDP version:** No spatial join is performed — ACLED data arrives pre-aggregated to Admin-2 territories. The output is therefore already at territory × month granularity, unlike the UCDP output which was event-level. Script 06's `aggregate_conflict()` function was updated accordingly to pass through the pre-aggregated columns rather than performing a groupby-agg.
-
 **Variable definitions:**
 - `town_admin2` — COD Admin-2 territory name (after city-to-territory remapping).
 - `violent_incidents` — total ACLED events (political violence + civilian targeting) in the territory-month.
@@ -271,7 +269,7 @@ Step 4 — Final merge (`merge_onto_grid()`): Both aggregations are left-joined 
 
 **Variable definitions:**
 - `violent_incidents` — number of conflict events recorded in admin2 unit *i* in month *t*.
-- `total_deaths` — sum of ACLED/UCDP best-estimate fatalities in admin2 unit *i* in month *t*.
+- `total_deaths` — sum of ACLED fatalities in admin2 unit *i* in month *t*.
 - `num_aid_projects` — count of distinct IATI project IDs with any fractional activity in admin2 unit *i* in month *t*.
 - `total_aid_spend` — sum of fractional USD spend allocated to admin2 unit *i* in month *t* based on project overlap.
 
