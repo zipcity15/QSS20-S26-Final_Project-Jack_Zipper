@@ -219,11 +219,9 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **Packages:** `pandas`
 
-**Data source change (updated):** This notebook previously used the UCDP Georeferenced Event Dataset (event-level, GPS-coded incidents). It now uses the **ACLED Humanitarian Response Plan (HRP) dashboard data** for the DRC, which is pre-aggregated to Admin-2 × month and covers 1997–2026, including post-2024 months unavailable in UCDP GED v24.1.
-
 **Input data:**
-- `democratic-republic-of-congo_hrp_political_violence_events_and_fatalities_by_month-year_as-of-0.xlsx` — ACLED political violence events and fatalities aggregated by Admin-2 territory and month. 66,364 rows × 10 columns; one row per territory-month.
-- `democratic-republic-of-congo_hrp_civilian_targeting_events_and_fatalities_by_month-year_as-of-0.xlsx` — ACLED civilian targeting events and fatalities, same structure and identical territory-month keys.
+- [democratic-republic-of-congo_hrp_political_violence_events_and_fatalities_by_month-year_as-of-0.xlsx](https://docs.google.com/spreadsheets/d/17E6CEwa431JKAtNhBPaEqBmv0vbmU1Vy/edit?usp=drive_link&ouid=118293876790289471777&rtpof=true&sd=true) — ACLED political violence events and fatalities aggregated by Admin-2 territory and month. 66,364 rows × 10 columns; one row per territory-month.
+- [democratic-republic-of-congo_hrp_civilian_targeting_events_and_fatalities_by_month-year_as-of-0.xlsx](https://docs.google.com/spreadsheets/d/1SAqUgGpmbwV6CbR724-QliWGDorEWn10/edit?usp=drive_link&ouid=118293876790289471777&rtpof=true&sd=true) — ACLED civilian targeting events and fatalities, same structure and identical territory-month keys.
 
 **Cleaning steps:**
 1. Read the `Data` sheet from both files (skipping the `TOU` licensing sheet).
@@ -241,7 +239,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 - `date_start` — first calendar day of the month (for date filtering in downstream scripts).
 - `year_month` — period string (e.g., `'2021-03'`) used as the panel join key.
 
-**Output:** [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link)
+**Output:** [conflict_dat_cleaned.csv](https://drive.google.com/file/d/1PcO33sd_H5-4inRf4tRHGB7IPdVvIl9e/view?usp=drive_link)
 
 ---
 
@@ -251,7 +249,7 @@ where *i* indexes province and *t* indexes snapshot month. `α_i` is a province 
 
 **Input data:**
 - [iati-drc-cleaned.csv](https://drive.google.com/file/d/1gwdMcWSfxQDt1TNnN-apsLRiFQa2P_A6/view?usp=drive_link) — output of script 00
-- [conflict_dat_cleaned.csv](https://drive.google.com/file/d/104m5PMSL-YGxrCZCxBs3-2kRoidlFNZm/view?usp=drive_link) — output of script 05
+- [conflict_dat_cleaned.csv](https://drive.google.com/file/d/1PcO33sd_H5-4inRf4tRHGB7IPdVvIl9e/view?usp=drive_link) — output of script 05
 
 **Merge strategy — three-step exact match on `['admin2_name', 'year_month']`:**
 
