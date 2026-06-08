@@ -1,5 +1,6 @@
-# Aid, Displacement, and Violence in the DRC: An analysis how aid impacts IDP flows in the Eastern DRC and how violence has impacted patterns of aid spending.
+# Who Gets Help? Aid Allocation and Conflict in the DRC
 ### Jack Zipper's Final Project for QSS 20
+### An analysis how aid impacts IDP flows in the Eastern DRC and how violence has impacted patterns of aid spending.
 
 [Google Drive link for data here](https://drive.google.com/drive/folders/1uCD0Pz8TyrORPHGUJoKdhrBjs3u54un1)
 
